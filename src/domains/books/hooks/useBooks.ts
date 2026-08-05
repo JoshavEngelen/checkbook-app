@@ -3,7 +3,7 @@
 import { useEffect, useReducer } from "react";
 import { BookRepository } from "../data/BookRepository";
 import { booksInitialState, booksReducer } from "../reducers/booksReducer";
-import type { Book, CreateBookRequest, UpdateBookRequest } from "../types";
+import type { CreateBookRequest, UpdateBookRequest } from "../types";
 import { useAuth } from "@/auth/hooks/useAuth";
 
 export function useBooks() {

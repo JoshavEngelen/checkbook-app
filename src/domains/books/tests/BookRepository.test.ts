@@ -27,7 +27,7 @@ jest.mock("firebase/firestore", () => ({
   addDoc: jest.fn(async () => ({ id: "new-book-id" })),
   updateDoc: jest.fn(async () => undefined),
   doc: jest.fn((_col, id) => `doc-ref-${id}`),
-  query: jest.fn((_col, ..._args) => "query-ref"),
+  query: jest.fn(() => "query-ref"),
   where: jest.fn(() => "where-clause"),
   Timestamp: {
     now: jest.fn(() => mockTimestamp),
