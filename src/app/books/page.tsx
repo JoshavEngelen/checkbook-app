@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useBooks, BookList, BookForm, ArchiveDialog } from "@/domains/books";
 import type { Book } from "@/domains/books";
 import { Button, Modal, Spinner } from "@/shared/components";
-import type { BookFormValues } from "@/domains/books/validation";
+import type { CreateBookValues } from "@/domains/books/validation";
 
 export default function BooksPage() {
   const { books, loading, createBook, updateBook, archiveBook, restoreBook } =
@@ -14,12 +14,12 @@ export default function BooksPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [archivingBook, setArchivingBook] = useState<Book | null>(null);
 
-  async function handleCreate(values: BookFormValues) {
+  async function handleCreate(values: CreateBookValues) {
     await createBook(values);
     setIsCreating(false);
   }
 
-  async function handleEdit(values: BookFormValues) {
+  async function handleEdit(values: CreateBookValues) {
     if (!editingBook) return;
     await updateBook(editingBook.id, values);
     setEditingBook(null);

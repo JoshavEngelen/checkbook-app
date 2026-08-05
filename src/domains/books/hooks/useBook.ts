@@ -11,7 +11,7 @@ export function useBook(id: string) {
 
   useEffect(() => {
     setLoading(true);
-    BookRepository.getBook(id)
+    BookRepository.getBookById(id)
       .then(setBook)
       .catch(() => setError("Failed to load book."))
       .finally(() => setLoading(false));

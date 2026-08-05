@@ -3,12 +3,12 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input, Button } from "@/shared/components";
-import { BookFormSchema, type BookFormValues } from "../../validation";
+import { bookSchema, type CreateBookValues } from "../../validation";
 import type { Book } from "../../types";
 
 interface BookFormProps {
   initial?: Book;
-  onSubmit: (values: BookFormValues) => Promise<void>;
+  onSubmit: (values: CreateBookValues) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -17,8 +17,8 @@ export function BookForm({ initial, onSubmit, onCancel }: BookFormProps) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<BookFormValues>({
-    resolver: zodResolver(BookFormSchema),
+  } = useForm<CreateBookValues>({
+    resolver: zodResolver(bookSchema),
     defaultValues: {
       name: initial?.name ?? "",
       description: initial?.description ?? "",

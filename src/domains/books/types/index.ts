@@ -10,8 +10,9 @@ export type Book = {
   createdAt: Timestamp;
 };
 
-// Fields the user provides when creating or editing a book
-export type BookForm = Pick<Book, "name" | "description" | "participants">;
+export type CreateBookRequest = Pick<Book, "name" | "description" | "participants">;
+
+export type UpdateBookRequest = Partial<CreateBookRequest>;
 
 // Lightweight projection for list views
 export type BookSummary = Pick<

@@ -10,7 +10,7 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "@/infrastructure/firebase/firestore";
-import type { Book, BookForm } from "../types";
+import type { Book, CreateBookRequest, UpdateBookRequest } from "../types";
 
 const booksCollection = collection(db, "books");
 
@@ -33,26 +33,26 @@ export const BookRepository = {
     return snapshot.docs.map((d) => docToBook(d.id, d.data()));
   },
 
-  async getBook(id: string): Promise<Book | null> {
+  async getBookById(id: string): Promise<Book | null> {
     const snapshot = await getDoc(doc(booksCollection, id));
     if (!snapshot.exists()) return null;
     return docToBook(snapshot.id, snapshot.data());
   },
 
-  async createBook(ownerId: string, form: BookForm): Promise<Book> {
+  async createBook(ownerId: string, request: CreateBookRequest): Promise<Book> {
     const data = {
-      ...form,
+      ...request,
       ownerId,
       archived: false,
-      participants: form.participants ?? [],
+      participants: request.participants ?? [],
       createdAt: Timestamp.now(),
     };
     const ref = await addDoc(booksCollection, data);
     return { id: ref.id, ...data };
   },
 
-  async updateBook(id: string, form: Partial<BookForm>): Promise<void> {
-    await updateDoc(doc(booksCollection, id), { ...form });
+  async updateBook(id: string, request: UpdateBookRequest): Promise<void> {
+    await updateDoc(doc(booksCollection, id), { ...request });
   },
 
   async archiveBook(id: string): Promise<void> {

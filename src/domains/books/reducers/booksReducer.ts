@@ -7,11 +7,11 @@ type BooksState = {
 };
 
 type BooksAction =
-  | { type: "LOAD"; payload: Book[] }
-  | { type: "ADD"; payload: Book }
-  | { type: "UPDATE"; payload: Book }
-  | { type: "ARCHIVE"; payload: string }
-  | { type: "RESTORE"; payload: string };
+  | { type: "LOAD_BOOKS"; payload: Book[] }
+  | { type: "ADD_BOOK"; payload: Book }
+  | { type: "UPDATE_BOOK"; payload: Book }
+  | { type: "ARCHIVE_BOOK"; payload: string }
+  | { type: "RESTORE_BOOK"; payload: string };
 
 export const booksInitialState: BooksState = {
   books: [],
@@ -21,25 +21,25 @@ export const booksInitialState: BooksState = {
 
 export function booksReducer(state: BooksState, action: BooksAction): BooksState {
   switch (action.type) {
-    case "LOAD":
+    case "LOAD_BOOKS":
       return { ...state, books: action.payload, loading: false };
-    case "ADD":
+    case "ADD_BOOK":
       return { ...state, books: [...state.books, action.payload] };
-    case "UPDATE":
+    case "UPDATE_BOOK":
       return {
         ...state,
         books: state.books.map((b) =>
           b.id === action.payload.id ? action.payload : b
         ),
       };
-    case "ARCHIVE":
+    case "ARCHIVE_BOOK":
       return {
         ...state,
         books: state.books.map((b) =>
           b.id === action.payload ? { ...b, archived: true } : b
         ),
       };
-    case "RESTORE":
+    case "RESTORE_BOOK":
       return {
         ...state,
         books: state.books.map((b) =>

@@ -1,20 +1,12 @@
 import { z } from "zod";
 
-export const BookSchema = z.object({
-  id: z.string().min(1),
+export const bookSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
-  ownerId: z.string().min(1),
-  archived: z.boolean(),
   participants: z.array(z.string().min(1)),
-  createdAt: z.any(), // Firestore Timestamp is not a plain JS type
 });
 
-// Used for create/edit forms — mirrors BookForm
-export const BookFormSchema = BookSchema.pick({
-  name: true,
-  description: true,
-  participants: true,
-});
+export const updateBookSchema = bookSchema.partial();
 
-export type BookFormValues = z.infer<typeof BookFormSchema>;
+export type CreateBookValues = z.infer<typeof bookSchema>;
+export type UpdateBookValues = z.infer<typeof updateBookSchema>;
