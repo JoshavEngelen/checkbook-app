@@ -1,7 +1,8 @@
 import { HTMLAttributes } from "react";
 import clsx from "clsx";
 
-export interface CardProps extends HTMLAttributes<HTMLDivElement> {}
+// Type alias (not an empty interface) so it can later gain Card-specific props.
+export type CardProps = HTMLAttributes<HTMLDivElement>;
 
 export function Card({ className, children, ...props }: CardProps) {
   return (
