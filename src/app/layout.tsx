@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AppProviders from "@/providers/AppProviders";
+import "../shared/styles/globals.css";
 
 export const metadata: Metadata = {
   title: "Checkbook App",

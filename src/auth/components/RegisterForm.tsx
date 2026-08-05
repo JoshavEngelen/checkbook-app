@@ -1,6 +1,7 @@
 "use client";
 
 import { SubmitEvent, useState } from "react";
+import { Button, Input } from "@/shared/components";
 import { useAuth } from "../hooks/useAuth";
 
 export function RegisterForm() {
@@ -25,30 +26,34 @@ export function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label htmlFor="register-email">Email</label>
-      <input
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <Input
         id="register-email"
+        label="Email"
         type="email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         required
       />
 
-      <label htmlFor="register-password">Password</label>
-      <input
+      <Input
         id="register-password"
+        label="Password"
         type="password"
         value={password}
         onChange={(event) => setPassword(event.target.value)}
         required
       />
 
-      {error && <p role="alert">{error}</p>}
+      {error && (
+        <p className="text-sm text-red-600" role="alert">
+          {error}
+        </p>
+      )}
 
-      <button type="submit" disabled={submitting}>
+      <Button type="submit" disabled={submitting} className="w-full">
         {submitting ? "Creating account..." : "Create account"}
-      </button>
+      </Button>
     </form>
   );
 }
