@@ -13,12 +13,16 @@ interface TransactionFiltersProps {
   onChange: (filters: TransactionFilters) => void;
 }
 
+function toYearMonth(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function buildMonthOptions(): { value: string; label: string }[] {
   const options = [];
   const now = new Date();
   for (let i = 0; i < 12; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const value = d.toISOString().slice(0, 7);
+    const value = toYearMonth(d);
     const label = d.toLocaleString("default", { month: "long", year: "numeric" });
     options.push({ value, label });
   }

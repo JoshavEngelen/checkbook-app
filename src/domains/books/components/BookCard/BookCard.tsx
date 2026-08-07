@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Card, Button } from "@/shared/components";
 import type { Book } from "../../types";
 
@@ -14,12 +15,14 @@ export function BookCard({ book, onEdit, onArchive, onRestore }: BookCardProps) 
   return (
     <Card className="flex flex-col gap-3">
       <div className="flex items-start justify-between gap-2">
-        <div>
-          <h3 className="font-semibold text-gray-900">{book.name}</h3>
+        <Link href={`/books/${book.id}`} className="group flex flex-col gap-0.5">
+          <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 group-hover:underline">
+            {book.name}
+          </h3>
           {book.description && (
-            <p className="mt-1 text-sm text-gray-500">{book.description}</p>
+            <p className="text-sm text-gray-500">{book.description}</p>
           )}
-        </div>
+        </Link>
         {book.archived && (
           <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
             Archived
