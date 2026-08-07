@@ -4,10 +4,21 @@ import { useEffect, useState } from "react";
 import { BookRepository } from "../data/BookRepository";
 import type { Book } from "../types";
 
+function isPermissionDenied(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === "permission-denied"
+  );
+}
+
 export function useBook(id: string) {
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // True when the book doesn't exist or the current user isn't its owner.
+  const [forbidden, setForbidden] = useState(false);
   const [loadedId, setLoadedId] = useState(id);
 
   // Reset state synchronously during render instead of in the effect, per
@@ -16,15 +27,28 @@ export function useBook(id: string) {
     setLoadedId(id);
     setBook(null);
     setError(null);
+    setForbidden(false);
     setLoading(true);
   }
 
   useEffect(() => {
     BookRepository.getBookById(id)
-      .then(setBook)
-      .catch(() => setError("Failed to load book."))
+      .then((result) => {
+        if (!result) {
+          setForbidden(true);
+          return;
+        }
+        setBook(result);
+      })
+      .catch((err) => {
+        if (isPermissionDenied(err)) {
+          setForbidden(true);
+        } else {
+          setError("Failed to load book.");
+        }
+      })
       .finally(() => setLoading(false));
   }, [id]);
 
-  return { book, loading, error };
+  return { book, loading, error, forbidden };
 }
