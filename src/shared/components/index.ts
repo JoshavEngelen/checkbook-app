@@ -24,3 +24,6 @@ export type { SelectProps, SelectOption } from "./Select";
 
 export { Table } from "./Table";
 export type { TableProps, TableColumn } from "./Table";
+
+export { Dropdown } from "./Dropdown";
+export type { DropdownItem } from "./Dropdown";

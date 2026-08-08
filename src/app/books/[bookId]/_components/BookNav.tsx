@@ -7,7 +7,6 @@ import clsx from "clsx";
 const navItems = (bookId: string) => [
   { label: "Transactions", href: `/books/${bookId}/transactions` },
   { label: "Categories", href: `/books/${bookId}/categories` },
-  { label: "Statistics", href: `/books/${bookId}/statistics` },
 ];
 
 export function BookNav({ bookId }: { bookId: string }) {

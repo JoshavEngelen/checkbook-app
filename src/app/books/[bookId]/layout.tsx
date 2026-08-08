@@ -15,10 +15,10 @@ export default async function BookLayout({
     <div className="flex min-h-screen">
       <aside className="w-56 shrink-0 border-r border-gray-200 bg-white p-4">
         <Link
-          href="/books"
+          href="/dashboard"
           className="mb-6 flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700"
         >
-          ← All books
+          ← Dashboard
         </Link>
         <BookNav bookId={bookId} />
       </aside>

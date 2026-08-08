@@ -3,7 +3,7 @@
 import { useEffect, useReducer } from "react";
 import { BookRepository } from "../data/BookRepository";
 import { booksInitialState, booksReducer } from "../reducers/booksReducer";
-import type { CreateBookRequest, UpdateBookRequest } from "../types";
+import type { Book, CreateBookRequest, UpdateBookRequest } from "../types";
 import { useAuth } from "@/auth/hooks/useAuth";
 
 export function useBooks() {
@@ -17,10 +17,11 @@ export function useBooks() {
     );
   }, [user]);
 
-  async function createBook(request: CreateBookRequest): Promise<void> {
-    if (!user) return;
+  async function createBook(request: CreateBookRequest): Promise<Book> {
+    if (!user) throw new Error("Cannot create a book: user is not authenticated.");
     const book = await BookRepository.createBook(user.uid, request);
     dispatch({ type: "ADD_BOOK", payload: book });
+    return book;
   }
 
   async function updateBook(id: string, request: UpdateBookRequest): Promise<void> {

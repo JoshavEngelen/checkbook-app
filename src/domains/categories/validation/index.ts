@@ -5,7 +5,10 @@ export const categorySchema = z.object({
   budget: z
     .number({ error: "Budget must be a number" })
     .min(0, "Budget must be at least 0"),
-  endDate: z.coerce.date().optional(),
+  endDate: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z.coerce.date().optional()
+  ),
 });
 
 export const updateCategorySchema = categorySchema.partial();
