@@ -1,13 +1,15 @@
-import { EmptyState } from "@/shared/components";
+import { EmptyState, Spinner } from "@/shared/components";
 import { TransactionCard } from "@/domains/transactions";
 import type { Transaction } from "@/domains/transactions";
 
 interface DashboardRecentTransactionsProps {
   transactions: Transaction[];
+  loading?: boolean;
 }
 
 export function DashboardRecentTransactions({
   transactions,
+  loading = false,
 }: DashboardRecentTransactionsProps) {
   return (
     <section aria-labelledby="recent-transactions-heading">
@@ -18,7 +20,11 @@ export function DashboardRecentTransactions({
         Recent transactions
       </h2>
 
-      {transactions.length === 0 ? (
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Spinner size="md" />
+        </div>
+      ) : transactions.length === 0 ? (
         <EmptyState
           title="No transactions yet"
           description="Add your first transaction via the quick actions above."

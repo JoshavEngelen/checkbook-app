@@ -9,8 +9,6 @@ import { BookForm, ArchiveDialog } from "@/domains/books";
 import type { Book } from "@/domains/books";
 import { CategoryForm } from "@/domains/categories";
 import { TransactionForm } from "@/domains/transactions";
-import type { Category } from "@/domains/categories";
-import type { Transaction } from "@/domains/transactions";
 import type { CreateBookValues } from "@/domains/books/validation";
 import type { CreateCategoryValues } from "@/domains/categories/validation";
 import type { CreateTransactionValues } from "@/domains/transactions/validation";
@@ -21,72 +19,7 @@ import { QuickActions } from "./_components/QuickActions";
 import { DashboardCategories } from "./_components/DashboardCategories";
 import { DashboardRecentTransactions } from "./_components/DashboardRecentTransactions";
 import { useSelectedBook } from "./_hooks/useSelectedBook";
-
-// ---------------------------------------------------------------------------
-// Placeholder data — categories and transactions will be wired to Firebase
-// in a later step. Only books are live at this stage.
-// ---------------------------------------------------------------------------
-
-const MOCK_CATEGORIES: Category[] = [
-  { id: "cat-1", bookId: "book-1", name: "Groceries", budget: 400 },
-  { id: "cat-2", bookId: "book-1", name: "Utilities", budget: 200 },
-  { id: "cat-3", bookId: "book-1", name: "Dining out", budget: 150 },
-];
-
-const MOCK_TRANSACTIONS: Transaction[] = [
-  {
-    id: "tx-1",
-    bookId: "book-1",
-    title: "Supermarket run",
-    amount: 87.5,
-    type: "expense",
-    categoryId: "cat-1",
-    date: new Date(2026, 7, 7),
-  },
-  {
-    id: "tx-2",
-    bookId: "book-1",
-    title: "Electricity bill",
-    amount: 64.0,
-    type: "expense",
-    categoryId: "cat-2",
-    date: new Date(2026, 7, 6),
-  },
-  {
-    id: "tx-3",
-    bookId: "book-1",
-    title: "Salary",
-    amount: 2400.0,
-    type: "income",
-    date: new Date(2026, 7, 1),
-  },
-  {
-    id: "tx-4",
-    bookId: "book-1",
-    title: "Restaurant dinner",
-    amount: 45.0,
-    type: "expense",
-    categoryId: "cat-3",
-    date: new Date(2026, 7, 5),
-  },
-  {
-    id: "tx-5",
-    bookId: "book-1",
-    title: "Coffee & pastry",
-    amount: 12.5,
-    type: "expense",
-    categoryId: "cat-3",
-    date: new Date(2026, 7, 4),
-  },
-];
-
-const MOCK_SPENT: Record<string, number> = {
-  "cat-1": 87.5,
-  "cat-2": 64.0,
-  "cat-3": 57.5,
-};
-
-const RECENT_TRANSACTION_LIMIT = 5;
+import { useDashboardContent } from "./_hooks/useDashboardContent";
 
 // ---------------------------------------------------------------------------
 
@@ -104,6 +37,16 @@ export default function DashboardPage() {
 
   const { selectedBook, setSelectedBook, activeBooks, initialized } =
     useSelectedBook(books, booksLoading);
+
+  const {
+    categories,
+    recentTransactions,
+    spentByCategoryId,
+    categoryOptions,
+    loading: contentLoading,
+    createCategory,
+    createTransaction,
+  } = useDashboardContent(selectedBook?.id ?? null);
 
   const [isCreatingBook, setIsCreatingBook] = useState(false);
   const [createBookError, setCreateBookError] = useState<string | null>(null);
@@ -171,16 +114,15 @@ export default function DashboardPage() {
     }
   }
 
-  // Placeholder handlers — no-ops until categories/transactions are wired up.
-  async function handleAddTransaction(_values: CreateTransactionValues): Promise<void> {
+  async function handleAddTransaction(values: CreateTransactionValues): Promise<void> {
+    await createTransaction(values);
     setIsAddingTransaction(false);
   }
 
-  async function handleAddCategory(_values: CreateCategoryValues): Promise<void> {
+  async function handleAddCategory(values: CreateCategoryValues): Promise<void> {
+    await createCategory(values);
     setIsAddingCategory(false);
   }
-
-  const recentTransactions = MOCK_TRANSACTIONS.slice(0, RECENT_TRANSACTION_LIMIT);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -237,10 +179,14 @@ export default function DashboardPage() {
             {/* Two-column content at md+ */}
             <div className="grid gap-10 md:grid-cols-2">
               <DashboardCategories
-                categories={MOCK_CATEGORIES}
-                spentByCategoryId={MOCK_SPENT}
+                categories={categories}
+                spentByCategoryId={spentByCategoryId}
+                loading={contentLoading}
               />
-              <DashboardRecentTransactions transactions={recentTransactions} />
+              <DashboardRecentTransactions
+                transactions={recentTransactions}
+                loading={contentLoading}
+              />
             </div>
           </>
         )}
@@ -278,6 +224,7 @@ export default function DashboardPage() {
       <Modal open={isAddingTransaction} onClose={() => setIsAddingTransaction(false)}>
         <h2 className="mb-4 text-lg font-semibold">Add transaction</h2>
         <TransactionForm
+          categoryOptions={categoryOptions}
           onSubmit={handleAddTransaction}
           onCancel={() => setIsAddingTransaction(false)}
         />

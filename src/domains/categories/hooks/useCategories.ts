@@ -12,6 +12,7 @@ export function useCategories(bookId: string) {
   const [state, dispatch] = useReducer(categoriesReducer, categoriesInitialState);
 
   useEffect(() => {
+    if (!bookId) return;
     CategoryRepository.getCategories(bookId).then((categories) =>
       dispatch({ type: "LOAD_CATEGORIES", payload: categories })
     );

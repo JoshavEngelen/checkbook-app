@@ -12,6 +12,7 @@ export function useTransactions(bookId: string) {
   const [state, dispatch] = useReducer(transactionsReducer, transactionsInitialState);
 
   useEffect(() => {
+    if (!bookId) return;
     TransactionRepository.getTransactions(bookId).then((transactions) =>
       dispatch({ type: "LOAD_TRANSACTIONS", payload: transactions })
     );
