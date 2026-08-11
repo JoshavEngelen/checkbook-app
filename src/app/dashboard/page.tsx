@@ -9,6 +9,7 @@ import { BookForm, ArchiveDialog } from "@/domains/books";
 import type { Book } from "@/domains/books";
 import { CategoryForm } from "@/domains/categories";
 import { TransactionForm } from "@/domains/transactions";
+import type { Transaction } from "@/domains/transactions";
 import type { CreateBookValues } from "@/domains/books/validation";
 import type { CreateCategoryValues } from "@/domains/categories/validation";
 import type { CreateTransactionValues } from "@/domains/transactions/validation";
@@ -46,6 +47,8 @@ export default function DashboardPage() {
     loading: contentLoading,
     createCategory,
     createTransaction,
+    updateTransaction,
+    deleteTransaction,
   } = useDashboardContent(selectedBook?.id ?? null);
 
   const [isCreatingBook, setIsCreatingBook] = useState(false);
@@ -53,6 +56,7 @@ export default function DashboardPage() {
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [archivingBook, setArchivingBook] = useState<Book | null>(null);
   const [isAddingTransaction, setIsAddingTransaction] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
 
   useEffect(() => {
@@ -117,6 +121,12 @@ export default function DashboardPage() {
   async function handleAddTransaction(values: CreateTransactionValues): Promise<void> {
     await createTransaction(values);
     setIsAddingTransaction(false);
+  }
+
+  async function handleEditTransaction(values: CreateTransactionValues): Promise<void> {
+    if (!editingTransaction) return;
+    await updateTransaction(editingTransaction.id, values);
+    setEditingTransaction(null);
   }
 
   async function handleAddCategory(values: CreateCategoryValues): Promise<void> {
@@ -187,6 +197,8 @@ export default function DashboardPage() {
               <DashboardRecentTransactions
                 transactions={recentTransactions}
                 loading={contentLoading}
+                onEdit={setEditingTransaction}
+                onDelete={(tx) => deleteTransaction(tx.id)}
               />
             </div>
           </>
@@ -228,6 +240,16 @@ export default function DashboardPage() {
           categoryOptions={categoryOptions}
           onSubmit={handleAddTransaction}
           onCancel={() => setIsAddingTransaction(false)}
+        />
+      </Modal>
+
+      <Modal open={editingTransaction !== null} onClose={() => setEditingTransaction(null)}>
+        <h2 className="mb-4 text-lg font-semibold">Edit transaction</h2>
+        <TransactionForm
+          initial={editingTransaction ?? undefined}
+          categoryOptions={categoryOptions}
+          onSubmit={handleEditTransaction}
+          onCancel={() => setEditingTransaction(null)}
         />
       </Modal>
 

@@ -30,6 +30,8 @@ export function useDashboardContent(bookId: string | null) {
     transactions,
     loading: transactionsLoading,
     createTransaction,
+    updateTransaction,
+    deleteTransaction,
   } = useTransactions(resolvedId);
 
   // Sum expense amounts per category across all transactions.
@@ -64,5 +66,7 @@ export function useDashboardContent(bookId: string | null) {
     loading: bookId ? categoriesLoading || transactionsLoading : false,
     createCategory,
     createTransaction,
+    updateTransaction,
+    deleteTransaction,
   };
 }

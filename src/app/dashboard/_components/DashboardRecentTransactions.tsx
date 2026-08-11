@@ -5,11 +5,15 @@ import type { Transaction } from "@/domains/transactions";
 interface DashboardRecentTransactionsProps {
   transactions: Transaction[];
   loading?: boolean;
+  onEdit: (transaction: Transaction) => void;
+  onDelete: (transaction: Transaction) => void;
 }
 
 export function DashboardRecentTransactions({
   transactions,
   loading = false,
+  onEdit,
+  onDelete,
 }: DashboardRecentTransactionsProps) {
   return (
     <section aria-labelledby="recent-transactions-heading">
@@ -32,13 +36,11 @@ export function DashboardRecentTransactions({
       ) : (
         <div className="flex flex-col gap-2">
           {transactions.map((tx) => (
-            // TransactionCard requires onEdit/onDelete; in the dashboard shell
-            // these are no-ops — real wiring happens when Firebase is connected.
             <TransactionCard
               key={tx.id}
               transaction={tx}
-              onEdit={() => {}}
-              onDelete={() => {}}
+              onEdit={onEdit}
+              onDelete={onDelete}
             />
           ))}
         </div>
