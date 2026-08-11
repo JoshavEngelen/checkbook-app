@@ -179,6 +179,7 @@ export default function DashboardPage() {
             {/* Two-column content at md+ */}
             <div className="grid gap-10 md:grid-cols-2">
               <DashboardCategories
+                bookId={selectedBook?.id ?? ""}
                 categories={categories}
                 spentByCategoryId={spentByCategoryId}
                 loading={contentLoading}

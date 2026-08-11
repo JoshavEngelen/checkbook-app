@@ -1,8 +1,12 @@
-import { Card, EmptyState, Spinner } from "@/shared/components";
+"use client";
+
+import Link from "next/link";
+import { Card, EmptyState, Spinner, Button } from "@/shared/components";
 import { CategoryBudget } from "@/domains/categories";
 import type { Category } from "@/domains/categories";
 
 interface DashboardCategoriesProps {
+  bookId: string;
   categories: Category[];
   /** Expense totals keyed by categoryId */
   spentByCategoryId: Record<string, number>;
@@ -10,6 +14,7 @@ interface DashboardCategoriesProps {
 }
 
 export function DashboardCategories({
+  bookId,
   categories,
   spentByCategoryId,
   loading = false,
@@ -19,7 +24,7 @@ export function DashboardCategories({
       <h2 id="categories-heading" className="mb-3 text-lg font-semibold text-gray-900">
         Categories
       </h2>
-
+      
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <Spinner size="md" />
@@ -34,7 +39,12 @@ export function DashboardCategories({
           {categories.map((cat) => (
             <Card key={cat.id} className="flex flex-col gap-3">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <h3 className="min-w-0 font-medium text-gray-900 truncate">{cat.name}</h3>
+                <Link
+                  href={`/books/${bookId}/categories`}
+                  className="min-w-0 truncate font-medium text-gray-900 hover:text-blue-600 hover:underline underline-offset-2"
+                >
+                  {cat.name}
+                </Link>
                 {cat.endDate && (
                   <span className="shrink-0 whitespace-nowrap text-xs text-gray-400">
                     until {cat.endDate.toLocaleDateString()}
