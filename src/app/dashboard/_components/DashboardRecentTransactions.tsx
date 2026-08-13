@@ -1,10 +1,11 @@
-import { EmptyState } from "@/shared/components";
+import { Button, EmptyState } from "@/shared/components";
 import { TransactionCard } from "@/domains/transactions";
 import type { Transaction } from "@/domains/transactions";
 
 interface DashboardRecentTransactionsProps {
   transactions: Transaction[];
   loading?: boolean;
+  onAddTransaction: () => void;
   onEdit: (transaction: Transaction) => void;
   onDelete: (transaction: Transaction) => void;
 }
@@ -12,6 +13,7 @@ interface DashboardRecentTransactionsProps {
 export function DashboardRecentTransactions({
   transactions,
   loading = false,
+  onAddTransaction,
   onEdit,
   onDelete,
 }: DashboardRecentTransactionsProps) {
@@ -39,7 +41,12 @@ export function DashboardRecentTransactions({
       ) : transactions.length === 0 ? (
         <EmptyState
           title="No transactions yet"
-          description="Add your first transaction via the quick actions above."
+          description="Record your first transaction to start tracking your finances."
+          action={
+            <Button size="sm" onClick={onAddTransaction}>
+              + Add transaction
+            </Button>
+          }
         />
       ) : (
         <div className="flex flex-col gap-2">

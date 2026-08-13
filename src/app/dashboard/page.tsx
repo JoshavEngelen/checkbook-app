@@ -156,8 +156,8 @@ export default function DashboardPage() {
         {!booksLoading && initialized && activeBooks.length === 0 ? (
           <div className="rounded-lg border border-dashed border-gray-300 bg-white py-16">
             <EmptyState
-              title="No active books"
-              description="Create your first checkbook to start tracking your finances."
+              title="Create your first household book"
+              description="A book groups your transactions and categories together."
               action={
                 <Button onClick={() => setIsCreatingBook(true)}>
                   + Create a book
@@ -193,6 +193,7 @@ export default function DashboardPage() {
               <DashboardRecentTransactions
                 transactions={recentTransactions}
                 loading={booksLoading || !initialized || transactionsLoading}
+                onAddTransaction={() => setIsAddingTransaction(true)}
                 onEdit={setEditingTransaction}
                 onDelete={(tx) => deleteTransaction(tx.id)}
               />

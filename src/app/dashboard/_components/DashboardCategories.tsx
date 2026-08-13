@@ -40,7 +40,12 @@ export function DashboardCategories({
       ) : categories.length === 0 ? (
         <EmptyState
           title="No categories yet"
-          description="Add categories to track your spending against a budget."
+          description="Add a category to start tracking your spending against a budget."
+          action={
+            <Button variant="secondary" size="sm" onClick={onAddCategory}>
+              + Add category
+            </Button>
+          }
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
