@@ -11,28 +11,44 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == ownerId;
     }
 
-    function bookOwnerId(bookId) {
-      return get(/databases/$(database)/documents/books/$(bookId)).data.ownerId;
+    function isParticipant(participants) {
+      return isSignedIn() && request.auth.uid in participants;
+    }
+
+    function isMember(ownerId, participants) {
+      return isOwner(ownerId) || isParticipant(participants);
+    }
+
+    function bookData(bookId) {
+      return get(/databases/$(database)/documents/books/$(bookId)).data;
+    }
+
+    function isBookMember(bookId) {
+      let book = bookData(bookId);
+      return isMember(book.ownerId, book.participants);
     }
 
     match /books/{bookId} {
-      allow read, delete: if isOwner(resource.data.ownerId);
+      allow read: if isMember(resource.data.ownerId, resource.data.participants);
+      allow delete: if isOwner(resource.data.ownerId);
       allow create: if isOwner(request.resource.data.ownerId);
       allow update: if isOwner(resource.data.ownerId)
         && request.resource.data.ownerId == resource.data.ownerId;
     }
 
     match /categories/{categoryId} {
-      allow read, delete: if isOwner(bookOwnerId(resource.data.bookId));
-      allow create: if isOwner(bookOwnerId(request.resource.data.bookId));
-      allow update: if isOwner(bookOwnerId(resource.data.bookId))
+      allow read: if isBookMember(resource.data.bookId);
+      allow delete: if isOwner(bookData(resource.data.bookId).ownerId);
+      allow create: if isBookMember(request.resource.data.bookId);
+      allow update: if isBookMember(resource.data.bookId)
         && request.resource.data.bookId == resource.data.bookId;
     }
 
     match /transactions/{transactionId} {
-      allow read, delete: if isOwner(bookOwnerId(resource.data.bookId));
-      allow create: if isOwner(bookOwnerId(request.resource.data.bookId));
-      allow update: if isOwner(bookOwnerId(resource.data.bookId))
+      allow read: if isBookMember(resource.data.bookId);
+      allow delete: if isOwner(bookData(resource.data.bookId).ownerId);
+      allow create: if isBookMember(request.resource.data.bookId);
+      allow update: if isBookMember(resource.data.bookId)
         && request.resource.data.bookId == resource.data.bookId;
     }
 

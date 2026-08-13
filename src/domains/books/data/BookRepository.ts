@@ -43,7 +43,6 @@ export const BookRepository = {
 
     const seen = new Set<string>();
     const books: Book[] = [];
-
     for (const snap of [ownedSnap, participantSnap]) {
       for (const d of snap.docs) {
         if (!seen.has(d.id)) {
@@ -52,7 +51,6 @@ export const BookRepository = {
         }
       }
     }
-
     return books;
   },
 
