@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useCategories } from "@/domains/categories";
 import { useTransactions } from "@/domains/transactions";
+import { assignTransactionToCategory } from "@/domains/transactions/operations/assignTransactionToCategory";
 
 const RECENT_TRANSACTION_LIMIT = 5;
 
@@ -60,6 +61,27 @@ export function useDashboardContent(bookId: string | null) {
     [categories]
   );
 
+  /**
+   * Optimistically assigns a transaction to a category, then persists through
+   * the domain operation. Rolls back to the previous categoryId on failure.
+   */
+  async function assignCategory(transactionId: string, categoryId: string): Promise<void> {
+    const tx = transactions.find((t) => t.id === transactionId);
+    if (!tx) return;
+    const previousCategoryId = tx.categoryId;
+
+    // Optimistic update — updates local reducer state immediately.
+    await updateTransaction(transactionId, { categoryId });
+
+    try {
+      await assignTransactionToCategory(transactionId, categoryId);
+    } catch {
+      // Rollback: restore the previous categoryId in local state.
+      await updateTransaction(transactionId, { categoryId: previousCategoryId });
+      throw new Error("Could not assign category. Please try again.");
+    }
+  }
+
   return {
     categories: bookId ? categories : [],
     transactions: bookId ? transactions : [],
@@ -77,5 +99,6 @@ export function useDashboardContent(bookId: string | null) {
     createTransaction,
     updateTransaction,
     deleteTransaction,
+    assignCategory,
   };
 }

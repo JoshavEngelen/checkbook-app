@@ -1,8 +1,8 @@
 "use client";
 
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { Card, EmptyState, Button } from "@/shared/components";
-import { CategoryBudget } from "@/domains/categories";
+import { EmptyState, Button } from "@/shared/components";
+import { DroppableCategoryCard } from "@/domains/categories/components/DroppableCategoryCard/DroppableCategoryCard";
 import type { Category } from "@/domains/categories";
 import { SectionError } from "./SectionError";
 
@@ -81,26 +81,11 @@ export function DashboardCategories({
                 }}
                 exit={{ opacity: 0, transition: { duration: reduced ? 0 : 0.12 } }}
               >
-                <Card className="flex flex-col gap-3">
-                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                    <button
-                      type="button"
-                      onClick={() => onEditCategory(cat)}
-                      className="min-w-0 truncate font-medium text-gray-900 hover:text-blue-600 hover:underline underline-offset-2 text-left"
-                    >
-                      {cat.name}
-                    </button>
-                    {cat.endDate && (
-                      <span className="shrink-0 whitespace-nowrap text-xs text-gray-400">
-                        until {cat.endDate.toLocaleDateString()}
-                      </span>
-                    )}
-                  </div>
-                  <CategoryBudget
-                    budget={cat.budget}
-                    spent={spentByCategoryId[cat.id] ?? 0}
-                  />
-                </Card>
+                <DroppableCategoryCard
+                  category={cat}
+                  spent={spentByCategoryId[cat.id] ?? 0}
+                  onEdit={onEditCategory}
+                />
               </motion.div>
             ))}
           </AnimatePresence>

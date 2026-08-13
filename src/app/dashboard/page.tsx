@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { DndContext, DragOverlay, PointerSensor, KeyboardSensor, useSensor, useSensors, closestCenter } from "@dnd-kit/core";
+import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { useAuth } from "@/auth/hooks/useAuth";
 import { useBooks } from "@/domains/books";
 import { Spinner, Modal, EmptyState, Button } from "@/shared/components";
@@ -10,6 +12,7 @@ import type { Book } from "@/domains/books";
 import type { Category } from "@/domains/categories";
 import { CategoryForm } from "@/domains/categories";
 import { TransactionForm } from "@/domains/transactions";
+import { TransactionCard } from "@/domains/transactions/components/TransactionCard/TransactionCard";
 import type { Transaction } from "@/domains/transactions";
 import type { CreateBookValues } from "@/domains/books/validation";
 import type { CreateCategoryValues } from "@/domains/categories/validation";
@@ -60,6 +63,7 @@ export default function DashboardPage() {
     createTransaction,
     updateTransaction,
     deleteTransaction,
+    assignCategory,
   } = useDashboardContent(selectedBook?.id ?? null);
 
   const [isCreatingBook, setIsCreatingBook] = useState(false);
@@ -71,6 +75,25 @@ export default function DashboardPage() {
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [draggedTransaction, setDraggedTransaction] = useState<Transaction | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  function handleDragStart(event: DragStartEvent) {
+    const tx = recentTransactions.find((t) => t.id === event.active.id);
+    setDraggedTransaction(tx ?? null);
+  }
+
+  async function handleDragEnd(event: DragEndEvent) {
+    setDraggedTransaction(null);
+    const transactionId = event.active.id as string;
+    const categoryId = event.over?.id as string | undefined;
+    if (!categoryId) return;
+    await assignCategory(transactionId, categoryId);
+  }
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -200,27 +223,46 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* Two-column content at md+ */}
-            <div className="grid gap-10 md:grid-cols-2">
-              <DashboardCategories
-                categories={categories}
-                spentByCategoryId={spentByCategoryId}
-                loading={booksLoading || !initialized || categoriesLoading}
-                error={categoriesError}
-                onRetry={retryCategories}
-                onAddCategory={() => setIsAddingCategory(true)}
-                onEditCategory={setEditingCategory}
-              />
-              <DashboardRecentTransactions
-                transactions={recentTransactions}
-                loading={booksLoading || !initialized || transactionsLoading}
-                error={transactionsError}
-                onRetry={retryTransactions}
-                onAddTransaction={() => setIsAddingTransaction(true)}
-                onEdit={setEditingTransaction}
-                onDelete={(tx) => deleteTransaction(tx.id)}
-              />
-            </div>
+            {/* Two-column content at md+ — wrapped in DndContext for drag-to-category */}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            >
+              <div className="grid gap-10 md:grid-cols-2">
+                <DashboardCategories
+                  categories={categories}
+                  spentByCategoryId={spentByCategoryId}
+                  loading={booksLoading || !initialized || categoriesLoading}
+                  error={categoriesError}
+                  onRetry={retryCategories}
+                  onAddCategory={() => setIsAddingCategory(true)}
+                  onEditCategory={setEditingCategory}
+                />
+                <DashboardRecentTransactions
+                  transactions={recentTransactions}
+                  loading={booksLoading || !initialized || transactionsLoading}
+                  error={transactionsError}
+                  onRetry={retryTransactions}
+                  onAddTransaction={() => setIsAddingTransaction(true)}
+                  onEdit={setEditingTransaction}
+                  onDelete={(tx) => deleteTransaction(tx.id)}
+                />
+              </div>
+              {/* Ghost card rendered at pointer position while dragging */}
+              <DragOverlay>
+                {draggedTransaction && (
+                  <div className="rotate-1 shadow-xl opacity-90 pointer-events-none">
+                    <TransactionCard
+                      transaction={draggedTransaction}
+                      onEdit={() => {}}
+                      onDelete={() => {}}
+                    />
+                  </div>
+                )}
+              </DragOverlay>
+            </DndContext>
           </>
         )}
       </div>

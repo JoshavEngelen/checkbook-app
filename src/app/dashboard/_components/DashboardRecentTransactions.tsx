@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Button, EmptyState } from "@/shared/components";
-import { TransactionCard } from "@/domains/transactions";
+import { DraggableTransactionCard } from "@/domains/transactions/components/DraggableTransactionCard/DraggableTransactionCard";
 import type { Transaction } from "@/domains/transactions";
 import { SectionError } from "./SectionError";
 
@@ -70,7 +70,7 @@ export function DashboardRecentTransactions({
                 exit={{ opacity: 0, transition: { duration: reduced ? 0 : 0.12 } }}
                 transition={{ duration: reduced ? 0 : 0.18, ease: "easeOut" }}
               >
-                <TransactionCard
+                <DraggableTransactionCard
                   transaction={tx}
                   onEdit={onEdit}
                   onDelete={onDelete}
