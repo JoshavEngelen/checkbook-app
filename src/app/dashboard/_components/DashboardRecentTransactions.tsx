@@ -1,4 +1,4 @@
-import { EmptyState, Spinner } from "@/shared/components";
+import { EmptyState } from "@/shared/components";
 import { TransactionCard } from "@/domains/transactions";
 import type { Transaction } from "@/domains/transactions";
 
@@ -25,8 +25,16 @@ export function DashboardRecentTransactions({
       </h2>
 
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Spinner size="md" />
+        <div className="flex flex-col gap-2">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex items-center justify-between rounded-lg border border-gray-100 bg-white px-4 py-3 shadow-sm">
+              <div className="flex flex-col gap-1.5">
+                <div className="h-3.5 w-32 animate-pulse rounded bg-gray-200" />
+                <div className="h-3 w-20 animate-pulse rounded bg-gray-200" />
+              </div>
+              <div className="h-4 w-16 animate-pulse rounded bg-gray-200" />
+            </div>
+          ))}
         </div>
       ) : transactions.length === 0 ? (
         <EmptyState

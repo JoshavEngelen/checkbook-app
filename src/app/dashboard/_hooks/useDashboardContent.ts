@@ -62,8 +62,9 @@ export function useDashboardContent(bookId: string | null) {
     recentTransactions: bookId ? recentTransactions : [],
     spentByCategoryId: bookId ? spentByCategoryId : {},
     categoryOptions: bookId ? categoryOptions : [],
-    // Only report loading when a real book is selected.
-    loading: bookId ? categoriesLoading || transactionsLoading : false,
+    // Expose independently so each section can show its own loading state.
+    categoriesLoading: bookId ? categoriesLoading : false,
+    transactionsLoading: bookId ? transactionsLoading : false,
     createCategory,
     createTransaction,
     updateTransaction,

@@ -44,7 +44,8 @@ export default function DashboardPage() {
     recentTransactions,
     spentByCategoryId,
     categoryOptions,
-    loading: contentLoading,
+    categoriesLoading,
+    transactionsLoading,
     createCategory,
     createTransaction,
     updateTransaction,
@@ -55,6 +56,7 @@ export default function DashboardPage() {
   const [createBookError, setCreateBookError] = useState<string | null>(null);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [archivingBook, setArchivingBook] = useState<Book | null>(null);
+  const [isArchiving, setIsArchiving] = useState(false);
   const [isAddingTransaction, setIsAddingTransaction] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
@@ -65,22 +67,11 @@ export default function DashboardPage() {
     }
   }, [authLoading, user, router]);
 
+  // Full-page spinner only for auth — everything else uses localized loading states.
   if (authLoading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Spinner size="lg" />
-      </div>
-    );
-  }
-
-  // Show a loading spinner while books are being fetched on first load.
-  if (booksLoading || !initialized) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <DashboardHeader user={user} />
-        <div className="flex items-center justify-center py-24">
-          <Spinner size="lg" />
-        </div>
       </div>
     );
   }
@@ -108,13 +99,16 @@ export default function DashboardPage() {
   }
 
   async function handleArchiveConfirm(book: Book): Promise<void> {
-    // Capture the next active book before the archive changes activeBooks.
-    const nextActive = activeBooks.find((b) => b.id !== book.id) ?? null;
-    await archiveBook(book.id);
-    setArchivingBook(null);
-    // Keep localStorage in sync with the auto-fallback selection.
-    if (nextActive) {
-      setSelectedBook(nextActive.id);
+    setIsArchiving(true);
+    try {
+      const nextActive = activeBooks.find((b) => b.id !== book.id) ?? null;
+      await archiveBook(book.id);
+      setArchivingBook(null);
+      if (nextActive) {
+        setSelectedBook(nextActive.id);
+      }
+    } finally {
+      setIsArchiving(false);
     }
   }
 
@@ -154,11 +148,12 @@ export default function DashboardPage() {
             onCreateBook={() => setIsCreatingBook(true)}
             onEditBook={setEditingBook}
             onArchiveBook={setArchivingBook}
+            loading={booksLoading || !initialized}
           />
         </section>
 
-        {/* No active books empty state */}
-        {activeBooks.length === 0 ? (
+        {/* No active books empty state — only shown after books have loaded */}
+        {!booksLoading && initialized && activeBooks.length === 0 ? (
           <div className="rounded-lg border border-dashed border-gray-300 bg-white py-16">
             <EmptyState
               title="No active books"
@@ -192,11 +187,12 @@ export default function DashboardPage() {
                 bookId={selectedBook?.id ?? ""}
                 categories={categories}
                 spentByCategoryId={spentByCategoryId}
-                loading={contentLoading}
+                loading={booksLoading || !initialized || categoriesLoading}
+                onAddCategory={() => setIsAddingCategory(true)}
               />
               <DashboardRecentTransactions
                 transactions={recentTransactions}
-                loading={contentLoading}
+                loading={booksLoading || !initialized || transactionsLoading}
                 onEdit={setEditingTransaction}
                 onDelete={(tx) => deleteTransaction(tx.id)}
               />
@@ -232,6 +228,7 @@ export default function DashboardPage() {
         book={archivingBook}
         onConfirm={handleArchiveConfirm}
         onCancel={() => setArchivingBook(null)}
+        isConfirming={isArchiving}
       />
 
       <Modal open={isAddingTransaction} onClose={() => setIsAddingTransaction(false)}>

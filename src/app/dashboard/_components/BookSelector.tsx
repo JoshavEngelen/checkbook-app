@@ -13,6 +13,7 @@ interface BookSelectorProps {
   onCreateBook: () => void;
   onEditBook: (book: Book) => void;
   onArchiveBook: (book: Book) => void;
+  loading?: boolean;
 }
 
 export function BookSelector({
@@ -22,7 +23,17 @@ export function BookSelector({
   onCreateBook,
   onEditBook,
   onArchiveBook,
+  loading = false,
 }: BookSelectorProps) {
+  if (loading) {
+    return (
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="h-9 w-36 animate-pulse rounded-lg bg-gray-200" />
+        <div className="h-9 w-24 animate-pulse rounded-lg bg-gray-200" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       <BookSelectorDropdown

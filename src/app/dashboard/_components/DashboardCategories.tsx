@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Card, EmptyState, Spinner, Button } from "@/shared/components";
+import { Card, EmptyState, Button } from "@/shared/components";
 import { CategoryBudget } from "@/domains/categories";
 import type { Category } from "@/domains/categories";
 
@@ -11,6 +11,7 @@ interface DashboardCategoriesProps {
   /** Expense totals keyed by categoryId */
   spentByCategoryId: Record<string, number>;
   loading?: boolean;
+  onAddCategory: () => void;
 }
 
 export function DashboardCategories({
@@ -18,6 +19,7 @@ export function DashboardCategories({
   categories,
   spentByCategoryId,
   loading = false,
+  onAddCategory,
 }: DashboardCategoriesProps) {
   return (
     <section aria-labelledby="categories-heading">
@@ -26,8 +28,14 @@ export function DashboardCategories({
       </h2>
       
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Spinner size="md" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="mb-3 h-4 w-2/3 animate-pulse rounded bg-gray-200" />
+              <div className="mb-2 h-3 w-full animate-pulse rounded bg-gray-200" />
+              <div className="h-2 w-full animate-pulse rounded-full bg-gray-200" />
+            </div>
+          ))}
         </div>
       ) : categories.length === 0 ? (
         <EmptyState
