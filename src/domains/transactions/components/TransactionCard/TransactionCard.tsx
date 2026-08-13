@@ -15,7 +15,9 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
   return (
     <div className="flex items-center justify-between gap-4 rounded-lg border border-gray-100 bg-white px-4 py-3 shadow-sm">
       <div className="flex min-w-0 flex-col gap-0.5">
-        <p className="truncate font-medium text-gray-900">{transaction.title}</p>
+        <p className="truncate font-medium text-gray-900">
+          {transaction.title || "Untitled"}
+        </p>
         <p className="text-xs text-gray-400">
           {transaction.date.toLocaleDateString()}
         </p>

@@ -7,18 +7,28 @@ export function CategoryBudget({ budget, spent = 0 }: CategoryBudgetProps) {
   const remaining = budget - spent;
   const pct = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
   const isOver = spent > budget;
+  const isNear = !isOver && pct >= 80;
+
+  const barColor = isOver ? "bg-red-500" : isNear ? "bg-amber-400" : "bg-blue-500";
+  const valueColor = isOver ? "text-red-600" : isNear ? "text-amber-600" : "text-gray-700";
+  const remainingLabel = isOver ? "Over budget" : "Remaining";
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex justify-between text-xs text-gray-500">
-        <span>Spent: ${spent.toFixed(2)}</span>
-        <span className={isOver ? "text-red-600 font-medium" : ""}>
-          {isOver ? `Over by $${(spent - budget).toFixed(2)}` : `$${remaining.toFixed(2)} left`}
+      {/* Two-row label/value layout avoids wrapping issues in narrow cards */}
+      <div className="flex justify-between text-xs text-gray-400">
+        <span>Spent</span>
+        <span>{remainingLabel}</span>
+      </div>
+      <div className="flex justify-between text-xs font-medium">
+        <span className="text-gray-700">${spent.toFixed(2)}</span>
+        <span className={valueColor}>
+          {isOver ? `$${(spent - budget).toFixed(2)}` : `$${remaining.toFixed(2)}`}
         </span>
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
         <div
-          className={`h-full rounded-full transition-all ${isOver ? "bg-red-500" : "bg-blue-500"}`}
+          className={`h-full rounded-full transition-all ${barColor}`}
           style={{ width: `${pct}%` }}
           role="progressbar"
           aria-valuenow={pct}

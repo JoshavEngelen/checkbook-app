@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 export const transactionSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+  // Title is optional; a transaction is meaningful with only an amount.
+  title: z.string().default(""),
   amount: z
     .number({ error: "Amount must be a number" })
     .positive("Amount must be greater than 0"),

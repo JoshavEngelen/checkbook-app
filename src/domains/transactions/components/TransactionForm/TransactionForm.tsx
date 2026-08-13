@@ -40,18 +40,14 @@ export function TransactionForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-      <Input
-        id="tx-title"
-        label="Title"
-        error={errors.title?.message}
-        {...register("title")}
-      />
+      {/* Amount first — the only field required for a minimal transaction */}
       <Input
         id="tx-amount"
         label="Amount"
         type="number"
         step="0.01"
         min="0.01"
+        autoFocus
         error={errors.amount?.message}
         {...register("amount", { valueAsNumber: true })}
       />
@@ -73,6 +69,11 @@ export function TransactionForm({
           {...register("categoryId")}
         />
       )}
+      <Input
+        id="tx-title"
+        label="Title (optional)"
+        {...register("title")}
+      />
       <Input
         id="tx-date"
         label="Date"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { TransactionRepository } from "../data/TransactionRepository";
 import {
   transactionsInitialState,
@@ -10,12 +10,19 @@ import type { CreateTransactionRequest, UpdateTransactionRequest } from "../type
 
 export function useTransactions(bookId: string) {
   const [state, dispatch] = useReducer(transactionsReducer, transactionsInitialState);
+  const [retryCount, setRetryCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    TransactionRepository.getTransactions(bookId).then((transactions) =>
-      dispatch({ type: "LOAD_TRANSACTIONS", payload: transactions })
-    );
-  }, [bookId]);
+    if (!bookId) return;
+    setError(null);
+    TransactionRepository.getTransactions(bookId)
+      .then((transactions) => dispatch({ type: "LOAD_TRANSACTIONS", payload: transactions }))
+      .catch(() => {
+        dispatch({ type: "LOAD_TRANSACTIONS", payload: [] }); // clears state.loading
+        setError("Couldn't load transactions.");
+      });
+  }, [bookId, retryCount]);
 
   async function createTransaction(request: CreateTransactionRequest): Promise<void> {
     const transaction = await TransactionRepository.createTransaction(bookId, request);
@@ -39,7 +46,8 @@ export function useTransactions(bookId: string) {
   return {
     transactions: state.transactions,
     loading: state.loading,
-    error: state.error,
+    error,
+    retry: () => setRetryCount((c) => c + 1),
     createTransaction,
     updateTransaction,
     deleteTransaction,
