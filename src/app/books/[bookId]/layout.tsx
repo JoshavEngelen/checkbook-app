@@ -25,7 +25,6 @@ export default async function BookLayout({
       </aside>
 
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
-      </div>
-    </BookAccessGuard>
+    </div>
   );
 }
