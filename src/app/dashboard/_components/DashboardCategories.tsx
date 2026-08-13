@@ -33,9 +33,6 @@ export function DashboardCategories({
         <h2 id="categories-heading" className="text-lg font-semibold text-gray-900">
           Categories
         </h2>
-        <Button variant="ghost" size="sm" onClick={onAddCategory}>
-          + Add category
-        </Button>
       </div>
 
       {loading ? (
