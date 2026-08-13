@@ -25,6 +25,7 @@ import { QuickActions } from "./_components/QuickActions";
 import { DashboardCategories } from "./_components/DashboardCategories";
 import { DashboardRecentTransactions } from "./_components/DashboardRecentTransactions";
 import { DashboardStats } from "./_components/DashboardStats";
+import { DashboardCharts } from "./_components/DashboardCharts";
 import { useSelectedBook } from "./_hooks/useSelectedBook";
 import { useDashboardContent } from "./_hooks/useDashboardContent";
 
@@ -70,6 +71,8 @@ export default function DashboardPage() {
     deleteTransaction,
     assignCategory,
     monthlyStats,
+    trendData,
+    categoryChartData,
   } = useDashboardContent(selectedBook?.id ?? null, statsMonth);
 
   const [isCreatingBook, setIsCreatingBook] = useState(false);
@@ -235,6 +238,13 @@ export default function DashboardPage() {
               month={statsMonth}
               onMonthChange={setStatsMonth}
               loading={booksLoading || !initialized || transactionsLoading}
+            />
+
+            {/* Visual charts — below stats, above the categories/transactions detail */}
+            <DashboardCharts
+              trendData={trendData}
+              categoryData={categoryChartData}
+              statsMonth={statsMonth}
             />
 
             {/* Two-column content at md+ — wrapped in DndContext for drag-to-category */}

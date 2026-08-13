@@ -6,6 +6,8 @@ import { useTransactions } from "@/domains/transactions";
 import { assignTransactionToCategory } from "@/domains/transactions/operations/assignTransactionToCategory";
 import { calculateMonthlyStats } from "@/domains/transactions/operations/calculateMonthlyStats";
 import type { MonthlyStats } from "@/domains/transactions/operations/calculateMonthlyStats";
+import { buildMonthlyChartData } from "@/domains/transactions/operations/buildMonthlyChartData";
+import { buildCategoryChartData } from "@/domains/transactions/operations/buildCategoryChartData";
 
 const RECENT_TRANSACTION_LIMIT = 5;
 
@@ -69,6 +71,17 @@ export function useDashboardContent(bookId: string | null, statsMonth: string) {
     [transactions, statsMonth, bookId]
   );
 
+  // Chart data — derived entirely from already-loaded transactions + categories.
+  const trendData = useMemo(
+    () => buildMonthlyChartData(bookId ? transactions : []),
+    [transactions, bookId]
+  );
+
+  const categoryChartData = useMemo(
+    () => buildCategoryChartData(bookId ? transactions : [], bookId ? categories : [], statsMonth),
+    [transactions, categories, statsMonth, bookId]
+  );
+
   /**
    * Optimistically assigns a transaction to a category, then persists through
    * the domain operation. Rolls back to the previous categoryId on failure.
@@ -109,5 +122,7 @@ export function useDashboardContent(bookId: string | null, statsMonth: string) {
     deleteTransaction,
     assignCategory,
     monthlyStats,
+    trendData,
+    categoryChartData,
   };
 }
