@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Card, EmptyState, Button } from "@/shared/components";
 import { CategoryBudget } from "@/domains/categories";
 import type { Category } from "@/domains/categories";
+import { SectionError } from "./SectionError";
 
 interface DashboardCategoriesProps {
   bookId: string;
@@ -11,6 +13,8 @@ interface DashboardCategoriesProps {
   /** Expense totals keyed by categoryId */
   spentByCategoryId: Record<string, number>;
   loading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
   onAddCategory: () => void;
 }
 
@@ -19,14 +23,22 @@ export function DashboardCategories({
   categories,
   spentByCategoryId,
   loading = false,
+  error = null,
+  onRetry,
   onAddCategory,
 }: DashboardCategoriesProps) {
+  const reduced = useReducedMotion();
   return (
     <section aria-labelledby="categories-heading">
-      <h2 id="categories-heading" className="mb-3 text-lg font-semibold text-gray-900">
-        Categories
-      </h2>
-      
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h2 id="categories-heading" className="text-lg font-semibold text-gray-900">
+          Categories
+        </h2>
+        <Button variant="ghost" size="sm" onClick={onAddCategory}>
+          + Add category
+        </Button>
+      </div>
+
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[0, 1, 2].map((i) => (
@@ -37,6 +49,8 @@ export function DashboardCategories({
             </div>
           ))}
         </div>
+      ) : error ? (
+        <SectionError message={error} onRetry={onRetry ?? (() => {})} />
       ) : categories.length === 0 ? (
         <EmptyState
           title="No categories yet"
@@ -48,29 +62,49 @@ export function DashboardCategories({
           }
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {categories.map((cat) => (
-            <Card key={cat.id} className="flex flex-col gap-3">
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <Link
-                  href={`/books/${bookId}/categories`}
-                  className="min-w-0 truncate font-medium text-gray-900 hover:text-blue-600 hover:underline underline-offset-2"
-                >
-                  {cat.name}
-                </Link>
-                {cat.endDate && (
-                  <span className="shrink-0 whitespace-nowrap text-xs text-gray-400">
-                    until {cat.endDate.toLocaleDateString()}
-                  </span>
-                )}
-              </div>
-              <CategoryBudget
-                budget={cat.budget}
-                spent={spentByCategoryId[cat.id] ?? 0}
-              />
-            </Card>
-          ))}
-        </div>
+        <motion.div
+          key="category-grid"
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: reduced ? 0 : 0.05 } },
+          }}
+        >
+          <AnimatePresence>
+            {categories.map((cat) => (
+              <motion.div
+                key={cat.id}
+                variants={{
+                  hidden: { opacity: 0, y: reduced ? 0 : 8 },
+                  visible: { opacity: 1, y: 0, transition: { duration: reduced ? 0 : 0.2, ease: "easeOut" } },
+                }}
+                exit={{ opacity: 0, transition: { duration: reduced ? 0 : 0.12 } }}
+              >
+                <Card className="flex flex-col gap-3">
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                    <Link
+                      href={`/books/${bookId}/categories`}
+                      className="min-w-0 truncate font-medium text-gray-900 hover:text-blue-600 hover:underline underline-offset-2"
+                    >
+                      {cat.name}
+                    </Link>
+                    {cat.endDate && (
+                      <span className="shrink-0 whitespace-nowrap text-xs text-gray-400">
+                        until {cat.endDate.toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                  <CategoryBudget
+                    budget={cat.budget}
+                    spent={spentByCategoryId[cat.id] ?? 0}
+                  />
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       )}
     </section>
   );

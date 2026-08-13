@@ -56,14 +56,17 @@ describe("CategoryList", () => {
 describe("CategoryBudget", () => {
   it("renders budget and remaining amount", () => {
     render(<CategoryBudget budget={200} spent={50} />);
-    expect(screen.getByText("Spent: $50.00")).toBeInTheDocument();
-    expect(screen.getByText("$150.00 left")).toBeInTheDocument();
+    expect(screen.getByText("Spent")).toBeInTheDocument();
+    expect(screen.getByText("$50.00")).toBeInTheDocument();
+    expect(screen.getByText("Remaining")).toBeInTheDocument();
+    expect(screen.getByText("$150.00")).toBeInTheDocument();
     expect(screen.getByText("Budget: $200.00")).toBeInTheDocument();
   });
 
   it("shows over-budget state when spent exceeds budget", () => {
     render(<CategoryBudget budget={100} spent={150} />);
-    expect(screen.getByText(/Over by \$50\.00/)).toBeInTheDocument();
+    expect(screen.getByText("Over budget")).toBeInTheDocument();
+    expect(screen.getByText("$50.00")).toBeInTheDocument();
   });
 
   it("renders a progressbar", () => {

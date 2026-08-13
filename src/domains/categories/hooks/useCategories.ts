@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { CategoryRepository } from "../data/CategoryRepository";
 import {
   categoriesInitialState,
@@ -10,13 +10,16 @@ import type { CreateCategoryRequest, UpdateCategoryRequest } from "../types";
 
 export function useCategories(bookId: string) {
   const [state, dispatch] = useReducer(categoriesReducer, categoriesInitialState);
+  const [retryCount, setRetryCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!bookId) return;
-    CategoryRepository.getCategories(bookId).then((categories) =>
-      dispatch({ type: "LOAD_CATEGORIES", payload: categories })
-    );
-  }, [bookId]);
+    setError(null);
+    CategoryRepository.getCategories(bookId)
+      .then((categories) => dispatch({ type: "LOAD_CATEGORIES", payload: categories }))
+      .catch(() => setError("Couldn't load categories."));
+  }, [bookId, retryCount]);
 
   async function createCategory(request: CreateCategoryRequest): Promise<void> {
     const category = await CategoryRepository.createCategory(bookId, request);
@@ -40,7 +43,8 @@ export function useCategories(bookId: string) {
   return {
     categories: state.categories,
     loading: state.loading,
-    error: state.error,
+    error,
+    retry: () => setRetryCount((c) => c + 1),
     createCategory,
     updateCategory,
     deleteCategory,

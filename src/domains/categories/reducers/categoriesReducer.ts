@@ -3,7 +3,6 @@ import type { Category } from "../types";
 type CategoriesState = {
   categories: Category[];
   loading: boolean;
-  error: string | null;
 };
 
 type CategoriesAction =
@@ -15,7 +14,6 @@ type CategoriesAction =
 export const categoriesInitialState: CategoriesState = {
   categories: [],
   loading: true,
-  error: null,
 };
 
 export function categoriesReducer(

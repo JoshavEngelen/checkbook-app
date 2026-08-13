@@ -3,7 +3,6 @@ import type { Book } from "../types";
 type BooksState = {
   books: Book[];
   loading: boolean;
-  error: string | null;
 };
 
 type BooksAction =
@@ -16,7 +15,6 @@ type BooksAction =
 export const booksInitialState: BooksState = {
   books: [],
   loading: true,
-  error: null,
 };
 
 export function booksReducer(state: BooksState, action: BooksAction): BooksState {

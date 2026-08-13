@@ -23,12 +23,16 @@ export function useDashboardContent(bookId: string | null) {
   const {
     categories,
     loading: categoriesLoading,
+    error: categoriesError,
+    retry: retryCategories,
     createCategory,
   } = useCategories(resolvedId);
 
   const {
     transactions,
     loading: transactionsLoading,
+    error: transactionsError,
+    retry: retryTransactions,
     createTransaction,
     updateTransaction,
     deleteTransaction,
@@ -62,9 +66,12 @@ export function useDashboardContent(bookId: string | null) {
     recentTransactions: bookId ? recentTransactions : [],
     spentByCategoryId: bookId ? spentByCategoryId : {},
     categoryOptions: bookId ? categoryOptions : [],
-    // Expose independently so each section can show its own loading state.
     categoriesLoading: bookId ? categoriesLoading : false,
     transactionsLoading: bookId ? transactionsLoading : false,
+    categoriesError: bookId ? categoriesError : null,
+    transactionsError: bookId ? transactionsError : null,
+    retryCategories,
+    retryTransactions,
     createCategory,
     createTransaction,
     updateTransaction,

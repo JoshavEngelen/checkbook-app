@@ -3,7 +3,6 @@ import type { Transaction } from "../types";
 type TransactionsState = {
   transactions: Transaction[];
   loading: boolean;
-  error: string | null;
 };
 
 type TransactionsAction =
@@ -15,7 +14,6 @@ type TransactionsAction =
 export const transactionsInitialState: TransactionsState = {
   transactions: [],
   loading: true,
-  error: null,
 };
 
 export function transactionsReducer(

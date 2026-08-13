@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import clsx from "clsx";
 
 export interface DropdownItem {
@@ -25,6 +26,7 @@ interface DropdownProps {
 export function Dropdown({ trigger, items, renderItem, disabled = false }: DropdownProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
 
   // Consolidate click-outside and escape-key handling
   useEffect(() => {
@@ -62,14 +64,19 @@ export function Dropdown({ trigger, items, renderItem, disabled = false }: Dropd
     <div ref={containerRef} className="relative">
       {trigger({ isOpen: open, onClick: handleTriggerClick })}
 
-      {open && items.length > 0 && (
-        <ul
-          role="menu"
-          className={clsx(
-            "absolute left-0 top-full z-20 mt-1 min-w-[160px] rounded-lg border border-gray-200",
-            "bg-white py-1 shadow-lg"
-          )}
-        >
+      <AnimatePresence>
+        {open && items.length > 0 && (
+          <motion.ul
+            role="menu"
+            className={clsx(
+              "absolute left-0 top-full z-20 mt-1 min-w-[160px] rounded-lg border border-gray-200",
+              "bg-white py-1 shadow-lg"
+            )}
+            initial={{ opacity: 0, y: reduced ? 0 : -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: reduced ? 0 : -4 }}
+            transition={{ duration: reduced ? 0 : 0.12, ease: "easeOut" }}
+          >
           {renderItem ? (
             items.map((item) => (
               <li key={item.id} role="none">
@@ -94,8 +101,9 @@ export function Dropdown({ trigger, items, renderItem, disabled = false }: Dropd
               </li>
             ))
           )}
-        </ul>
-      )}
+        </motion.ul>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

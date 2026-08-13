@@ -31,6 +31,8 @@ export default function DashboardPage() {
   const {
     books,
     loading: booksLoading,
+    error: booksError,
+    retry: retryBooks,
     createBook,
     updateBook,
     archiveBook,
@@ -46,6 +48,10 @@ export default function DashboardPage() {
     categoryOptions,
     categoriesLoading,
     transactionsLoading,
+    categoriesError,
+    transactionsError,
+    retryCategories,
+    retryTransactions,
     createCategory,
     createTransaction,
     updateTransaction,
@@ -149,6 +155,8 @@ export default function DashboardPage() {
             onEditBook={setEditingBook}
             onArchiveBook={setArchivingBook}
             loading={booksLoading || !initialized}
+            error={booksError}
+            onRetry={retryBooks}
           />
         </section>
 
@@ -188,11 +196,15 @@ export default function DashboardPage() {
                 categories={categories}
                 spentByCategoryId={spentByCategoryId}
                 loading={booksLoading || !initialized || categoriesLoading}
+                error={categoriesError}
+                onRetry={retryCategories}
                 onAddCategory={() => setIsAddingCategory(true)}
               />
               <DashboardRecentTransactions
                 transactions={recentTransactions}
                 loading={booksLoading || !initialized || transactionsLoading}
+                error={transactionsError}
+                onRetry={retryTransactions}
                 onAddTransaction={() => setIsAddingTransaction(true)}
                 onEdit={setEditingTransaction}
                 onDelete={(tx) => deleteTransaction(tx.id)}

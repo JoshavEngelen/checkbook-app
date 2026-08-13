@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { BookRepository } from "../data/BookRepository";
 import { booksInitialState, booksReducer } from "../reducers/booksReducer";
 import type { Book, CreateBookRequest, UpdateBookRequest } from "../types";
@@ -9,13 +9,16 @@ import { useAuth } from "@/auth/hooks/useAuth";
 export function useBooks() {
   const { user } = useAuth();
   const [state, dispatch] = useReducer(booksReducer, booksInitialState);
+  const [retryCount, setRetryCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
-    BookRepository.getBooks(user.uid).then((books) =>
-      dispatch({ type: "LOAD_BOOKS", payload: books })
-    );
-  }, [user]);
+    setError(null);
+    BookRepository.getBooks(user.uid)
+      .then((books) => dispatch({ type: "LOAD_BOOKS", payload: books }))
+      .catch(() => setError("Couldn't load books."));
+  }, [user, retryCount]);
 
   async function createBook(request: CreateBookRequest): Promise<Book> {
     if (!user) throw new Error("Cannot create a book: user is not authenticated.");
@@ -43,7 +46,8 @@ export function useBooks() {
   return {
     books: state.books,
     loading: state.loading,
-    error: state.error,
+    error,
+    retry: () => setRetryCount((c) => c + 1),
     createBook,
     updateBook,
     archiveBook,

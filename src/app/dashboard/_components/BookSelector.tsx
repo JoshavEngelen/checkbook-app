@@ -14,6 +14,8 @@ interface BookSelectorProps {
   onEditBook: (book: Book) => void;
   onArchiveBook: (book: Book) => void;
   loading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
 }
 
 export function BookSelector({
@@ -24,7 +26,22 @@ export function BookSelector({
   onEditBook,
   onArchiveBook,
   loading = false,
+  error = null,
+  onRetry,
 }: BookSelectorProps) {
+  if (error) {
+    return (
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="text-sm text-red-600">{error}</span>
+        {onRetry && (
+          <Button variant="secondary" size="sm" onClick={onRetry}>
+            Try again
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex flex-wrap items-center gap-3">
