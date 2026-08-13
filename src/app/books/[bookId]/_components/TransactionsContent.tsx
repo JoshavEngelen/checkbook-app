@@ -12,7 +12,13 @@ import type { CreateTransactionValues } from "@/domains/transactions/validation"
 const now = new Date();
 const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-export function TransactionsContent({ bookId }: { bookId: string }) {
+export function TransactionsContent({
+  bookId,
+  initialCategoryId,
+}: {
+  bookId: string;
+  initialCategoryId?: string;
+}) {
   const { transactions, loading, createTransaction, updateTransaction, deleteTransaction } =
     useTransactions(bookId);
   const { categories } = useCategories(bookId);
@@ -21,10 +27,16 @@ export function TransactionsContent({ bookId }: { bookId: string }) {
     month: currentMonth,
     type: "all",
   });
+  const [activeCategoryId, setActiveCategoryId] = useState<string | undefined>(
+    initialCategoryId
+  );
   const [isCreating, setIsCreating] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   const categoryOptions = categories.map((c) => ({ value: c.id, label: c.name }));
+  const activeCategory = activeCategoryId
+    ? categories.find((c) => c.id === activeCategoryId)
+    : undefined;
 
   const filtered = useMemo(
     () =>
@@ -34,10 +46,11 @@ export function TransactionsContent({ bookId }: { bookId: string }) {
         const txMonth = `${year}-${month}`;
         return (
           txMonth === filters.month &&
-          (filters.type === "all" || tx.type === filters.type)
+          (filters.type === "all" || tx.type === filters.type) &&
+          (!activeCategoryId || tx.categoryId === activeCategoryId)
         );
       }),
-    [transactions, filters]
+    [transactions, filters, activeCategoryId]
   );
 
   async function handleCreate(values: CreateTransactionValues) {
@@ -66,8 +79,21 @@ export function TransactionsContent({ bookId }: { bookId: string }) {
         <Button onClick={() => setIsCreating(true)}>New transaction</Button>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-4 flex flex-wrap items-end gap-3">
         <FiltersComponent filters={filters} onChange={setFilters} />
+        {activeCategory && (
+          <div className="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-sm text-blue-700">
+            <span>{activeCategory.name}</span>
+            <button
+              type="button"
+              onClick={() => setActiveCategoryId(undefined)}
+              aria-label={`Remove category filter: ${activeCategory.name}`}
+              className="ml-0.5 rounded-full p-0.5 hover:bg-blue-100"
+            >
+              ×
+            </button>
+          </div>
+        )}
       </div>
 
       <TransactionList

@@ -24,6 +24,7 @@ export function useDashboardContent(bookId: string | null) {
     error: categoriesError,
     retry: retryCategories,
     createCategory,
+    updateCategory,
   } = useCategories(resolvedId);
 
   const {
@@ -61,6 +62,7 @@ export function useDashboardContent(bookId: string | null) {
 
   return {
     categories: bookId ? categories : [],
+    transactions: bookId ? transactions : [],
     recentTransactions: bookId ? recentTransactions : [],
     spentByCategoryId: bookId ? spentByCategoryId : {},
     categoryOptions: bookId ? categoryOptions : [],
@@ -71,6 +73,7 @@ export function useDashboardContent(bookId: string | null) {
     retryCategories,
     retryTransactions,
     createCategory,
+    updateCategory,
     createTransaction,
     updateTransaction,
     deleteTransaction,

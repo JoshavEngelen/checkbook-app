@@ -7,12 +7,14 @@ import { useBooks } from "@/domains/books";
 import { Spinner, Modal, EmptyState, Button } from "@/shared/components";
 import { BookForm, ArchiveDialog } from "@/domains/books";
 import type { Book } from "@/domains/books";
+import type { Category } from "@/domains/categories";
 import { CategoryForm } from "@/domains/categories";
 import { TransactionForm } from "@/domains/transactions";
 import type { Transaction } from "@/domains/transactions";
 import type { CreateBookValues } from "@/domains/books/validation";
 import type { CreateCategoryValues } from "@/domains/categories/validation";
 import type { CreateTransactionValues } from "@/domains/transactions/validation";
+import { CategoryEditModal } from "@/app/_components/CategoryEditModal";
 import { DashboardHeader } from "./_components/DashboardHeader";
 import { BookSelector } from "./_components/BookSelector";
 import { BookActions } from "./_components/BookActions";
@@ -43,6 +45,7 @@ export default function DashboardPage() {
 
   const {
     categories,
+    transactions,
     recentTransactions,
     spentByCategoryId,
     categoryOptions,
@@ -53,6 +56,7 @@ export default function DashboardPage() {
     retryCategories,
     retryTransactions,
     createCategory,
+    updateCategory,
     createTransaction,
     updateTransaction,
     deleteTransaction,
@@ -66,6 +70,7 @@ export default function DashboardPage() {
   const [isAddingTransaction, setIsAddingTransaction] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -134,6 +139,12 @@ export default function DashboardPage() {
     setIsAddingCategory(false);
   }
 
+  async function handleUpdateCategory(values: CreateCategoryValues): Promise<void> {
+    if (!editingCategory) return;
+    await updateCategory(editingCategory.id, values);
+    setEditingCategory(null);
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardHeader user={user} />
@@ -192,13 +203,13 @@ export default function DashboardPage() {
             {/* Two-column content at md+ */}
             <div className="grid gap-10 md:grid-cols-2">
               <DashboardCategories
-                bookId={selectedBook?.id ?? ""}
                 categories={categories}
                 spentByCategoryId={spentByCategoryId}
                 loading={booksLoading || !initialized || categoriesLoading}
                 error={categoriesError}
                 onRetry={retryCategories}
                 onAddCategory={() => setIsAddingCategory(true)}
+                onEditCategory={setEditingCategory}
               />
               <DashboardRecentTransactions
                 transactions={recentTransactions}
@@ -270,6 +281,16 @@ export default function DashboardPage() {
           onCancel={() => setIsAddingCategory(false)}
         />
       </Modal>
+
+      <CategoryEditModal
+        category={editingCategory}
+        onClose={() => setEditingCategory(null)}
+        onUpdateCategory={handleUpdateCategory}
+        transactions={transactions}
+        categoryOptions={categoryOptions}
+        onUpdateTransaction={async (id, values) => { await updateTransaction(id, values); }}
+        onDeleteTransaction={deleteTransaction}
+      />
     </div>
   );
 }

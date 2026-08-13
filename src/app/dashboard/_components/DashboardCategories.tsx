@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Card, EmptyState, Button } from "@/shared/components";
 import { CategoryBudget } from "@/domains/categories";
@@ -8,7 +7,6 @@ import type { Category } from "@/domains/categories";
 import { SectionError } from "./SectionError";
 
 interface DashboardCategoriesProps {
-  bookId: string;
   categories: Category[];
   /** Expense totals keyed by categoryId */
   spentByCategoryId: Record<string, number>;
@@ -16,16 +14,17 @@ interface DashboardCategoriesProps {
   error?: string | null;
   onRetry?: () => void;
   onAddCategory: () => void;
+  onEditCategory: (category: Category) => void;
 }
 
 export function DashboardCategories({
-  bookId,
   categories,
   spentByCategoryId,
   loading = false,
   error = null,
   onRetry,
   onAddCategory,
+  onEditCategory,
 }: DashboardCategoriesProps) {
   const reduced = useReducedMotion();
   return (
@@ -84,12 +83,13 @@ export function DashboardCategories({
               >
                 <Card className="flex flex-col gap-3">
                   <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                    <Link
-                      href={`/books/${bookId}/categories`}
-                      className="min-w-0 truncate font-medium text-gray-900 hover:text-blue-600 hover:underline underline-offset-2"
+                    <button
+                      type="button"
+                      onClick={() => onEditCategory(cat)}
+                      className="min-w-0 truncate font-medium text-gray-900 hover:text-blue-600 hover:underline underline-offset-2 text-left"
                     >
                       {cat.name}
-                    </Link>
+                    </button>
                     {cat.endDate && (
                       <span className="shrink-0 whitespace-nowrap text-xs text-gray-400">
                         until {cat.endDate.toLocaleDateString()}

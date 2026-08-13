@@ -51,12 +51,11 @@ export const CategoryRepository = {
   },
 
   async updateCategory(id: string, request: UpdateCategoryRequest): Promise<void> {
-    const data = {
-      ...request,
-      ...(request.endDate !== undefined && {
-        endDate: request.endDate ? Timestamp.fromDate(request.endDate) : null,
-      }),
-    };
+    const { endDate, ...rest } = request;
+    const data: Record<string, unknown> = { ...rest };
+    if (endDate !== undefined) {
+      data.endDate = endDate ? Timestamp.fromDate(endDate) : null;
+    }
     await updateDoc(doc(categoriesCollection, id), data);
   },
 
