@@ -18,7 +18,10 @@ export function useCategories(bookId: string) {
     setError(null);
     CategoryRepository.getCategories(bookId)
       .then((categories) => dispatch({ type: "LOAD_CATEGORIES", payload: categories }))
-      .catch(() => setError("Couldn't load categories."));
+      .catch(() => {
+        dispatch({ type: "LOAD_CATEGORIES", payload: [] }); // clears state.loading
+        setError("Couldn't load categories.");
+      });
   }, [bookId, retryCount]);
 
   async function createCategory(request: CreateCategoryRequest): Promise<void> {

@@ -3,8 +3,6 @@
 import { useMemo } from "react";
 import { useCategories } from "@/domains/categories";
 import { useTransactions } from "@/domains/transactions";
-import type { CreateCategoryRequest } from "@/domains/categories";
-import type { CreateTransactionRequest } from "@/domains/transactions";
 
 const RECENT_TRANSACTION_LIMIT = 5;
 

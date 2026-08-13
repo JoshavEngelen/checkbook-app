@@ -18,7 +18,10 @@ export function useTransactions(bookId: string) {
     setError(null);
     TransactionRepository.getTransactions(bookId)
       .then((transactions) => dispatch({ type: "LOAD_TRANSACTIONS", payload: transactions }))
-      .catch(() => setError("Couldn't load transactions."));
+      .catch(() => {
+        dispatch({ type: "LOAD_TRANSACTIONS", payload: [] }); // clears state.loading
+        setError("Couldn't load transactions.");
+      });
   }, [bookId, retryCount]);
 
   async function createTransaction(request: CreateTransactionRequest): Promise<void> {

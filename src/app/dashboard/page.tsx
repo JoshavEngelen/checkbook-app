@@ -160,8 +160,8 @@ export default function DashboardPage() {
           />
         </section>
 
-        {/* No active books empty state — only shown after books have loaded */}
-        {!booksLoading && initialized && activeBooks.length === 0 ? (
+        {/* No active books empty state — only shown after books have loaded without error */}
+        {!booksLoading && initialized && !booksError && activeBooks.length === 0 ? (
           <div className="rounded-lg border border-dashed border-gray-300 bg-white py-16">
             <EmptyState
               title="Create your first household book"
@@ -173,7 +173,7 @@ export default function DashboardPage() {
               }
             />
           </div>
-        ) : (
+        ) : booksError ? null : (
           <>
             {/* Book-specific management links */}
             <div className="mb-8">

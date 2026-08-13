@@ -17,7 +17,10 @@ export function useBooks() {
     setError(null);
     BookRepository.getBooks(user.uid)
       .then((books) => dispatch({ type: "LOAD_BOOKS", payload: books }))
-      .catch(() => setError("Couldn't load books."));
+      .catch(() => {
+        dispatch({ type: "LOAD_BOOKS", payload: [] }); // clears state.loading
+        setError("Couldn't load books.");
+      });
   }, [user, retryCount]);
 
   async function createBook(request: CreateBookRequest): Promise<Book> {
