@@ -7,6 +7,8 @@ export { TransactionForm } from "./components/TransactionForm/TransactionForm";
 export { TransactionFilters } from "./components/TransactionFilters/TransactionFilters";
 export type { TransactionFilters as TransactionFiltersState } from "./components/TransactionFilters/TransactionFilters";
 export { assignTransactionToCategory, AssignCategoryError } from "./operations/assignTransactionToCategory";
+export { calculateMonthlyStats } from "./operations/calculateMonthlyStats";
+export type { MonthlyStats } from "./operations/calculateMonthlyStats";
 export type {
   Transaction,
   TransactionType,

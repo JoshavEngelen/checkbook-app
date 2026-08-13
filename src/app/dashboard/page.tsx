@@ -24,6 +24,7 @@ import { BookActions } from "./_components/BookActions";
 import { QuickActions } from "./_components/QuickActions";
 import { DashboardCategories } from "./_components/DashboardCategories";
 import { DashboardRecentTransactions } from "./_components/DashboardRecentTransactions";
+import { DashboardStats } from "./_components/DashboardStats";
 import { useSelectedBook } from "./_hooks/useSelectedBook";
 import { useDashboardContent } from "./_hooks/useDashboardContent";
 
@@ -46,6 +47,10 @@ export default function DashboardPage() {
   const { selectedBook, setSelectedBook, activeBooks, initialized } =
     useSelectedBook(books, booksLoading);
 
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const [statsMonth, setStatsMonth] = useState(currentMonth);
+
   const {
     categories,
     transactions,
@@ -64,7 +69,8 @@ export default function DashboardPage() {
     updateTransaction,
     deleteTransaction,
     assignCategory,
-  } = useDashboardContent(selectedBook?.id ?? null);
+    monthlyStats,
+  } = useDashboardContent(selectedBook?.id ?? null, statsMonth);
 
   const [isCreatingBook, setIsCreatingBook] = useState(false);
   const [createBookError, setCreateBookError] = useState<string | null>(null);
@@ -222,6 +228,14 @@ export default function DashboardPage() {
                 onAddCategory={() => setIsAddingCategory(true)}
               />
             </div>
+
+            {/* Financial statistics — scoped to selected book + selected month */}
+            <DashboardStats
+              stats={monthlyStats}
+              month={statsMonth}
+              onMonthChange={setStatsMonth}
+              loading={booksLoading || !initialized || transactionsLoading}
+            />
 
             {/* Two-column content at md+ — wrapped in DndContext for drag-to-category */}
             <DndContext

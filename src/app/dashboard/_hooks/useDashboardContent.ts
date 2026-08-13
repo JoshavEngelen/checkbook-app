@@ -4,6 +4,8 @@ import { useMemo } from "react";
 import { useCategories } from "@/domains/categories";
 import { useTransactions } from "@/domains/transactions";
 import { assignTransactionToCategory } from "@/domains/transactions/operations/assignTransactionToCategory";
+import { calculateMonthlyStats } from "@/domains/transactions/operations/calculateMonthlyStats";
+import type { MonthlyStats } from "@/domains/transactions/operations/calculateMonthlyStats";
 
 const RECENT_TRANSACTION_LIMIT = 5;
 
@@ -14,7 +16,7 @@ const RECENT_TRANSACTION_LIMIT = 5;
  * When bookId is null (no active book selected) all lists are empty and
  * loading is false — nothing is fetched.
  */
-export function useDashboardContent(bookId: string | null) {
+export function useDashboardContent(bookId: string | null, statsMonth: string) {
   // Hooks must be called unconditionally; empty string is safe because both
   // hooks guard against empty bookId internally.
   const resolvedId = bookId ?? "";
@@ -61,6 +63,12 @@ export function useDashboardContent(bookId: string | null) {
     [categories]
   );
 
+  // Financial statistics for the selected month — derived from already-loaded data.
+  const monthlyStats = useMemo<MonthlyStats>(
+    () => calculateMonthlyStats(bookId ? transactions : [], statsMonth),
+    [transactions, statsMonth, bookId]
+  );
+
   /**
    * Optimistically assigns a transaction to a category, then persists through
    * the domain operation. Rolls back to the previous categoryId on failure.
@@ -100,5 +108,6 @@ export function useDashboardContent(bookId: string | null) {
     updateTransaction,
     deleteTransaction,
     assignCategory,
+    monthlyStats,
   };
 }
