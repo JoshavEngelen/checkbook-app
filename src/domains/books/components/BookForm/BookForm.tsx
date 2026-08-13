@@ -22,7 +22,6 @@ export function BookForm({ initial, onSubmit, onCancel }: BookFormProps) {
     defaultValues: {
       name: initial?.name ?? "",
       description: initial?.description ?? "",
-      participants: initial?.participants ?? [],
     },
   });
 

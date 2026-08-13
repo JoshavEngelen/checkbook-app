@@ -49,7 +49,6 @@ describe("BookRepository", () => {
   it("createBook returns the created book with an id", async () => {
     const book = await BookRepository.createBook("user-1", {
       name: "New Book",
-      participants: [],
     });
     expect(book.id).toBe("new-book-id");
     expect(book.name).toBe("New Book");

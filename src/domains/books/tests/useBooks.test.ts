@@ -51,7 +51,7 @@ describe("useBooks", () => {
     const { result } = renderHook(() => useBooks());
     await waitFor(() => expect(result.current.loading).toBe(false));
     await act(async () => {
-      await result.current.createBook({ name: "New", participants: [] });
+      await result.current.createBook({ name: "New" });
     });
     expect(result.current.books).toHaveLength(2);
   });

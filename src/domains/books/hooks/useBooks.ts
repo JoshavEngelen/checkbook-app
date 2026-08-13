@@ -46,6 +46,18 @@ export function useBooks() {
     dispatch({ type: "RESTORE_BOOK", payload: id });
   }
 
+  async function addParticipant(bookId: string, participantUid: string): Promise<void> {
+    await BookRepository.addParticipant(bookId, participantUid);
+    const updated = await BookRepository.getBookById(bookId);
+    if (updated) dispatch({ type: "UPDATE_BOOK", payload: updated });
+  }
+
+  async function removeParticipant(bookId: string, participantUid: string): Promise<void> {
+    await BookRepository.removeParticipant(bookId, participantUid);
+    const updated = await BookRepository.getBookById(bookId);
+    if (updated) dispatch({ type: "UPDATE_BOOK", payload: updated });
+  }
+
   return {
     books: state.books,
     loading: state.loading,
@@ -55,5 +67,7 @@ export function useBooks() {
     updateBook,
     archiveBook,
     restoreBook,
+    addParticipant,
+    removeParticipant,
   };
 }
