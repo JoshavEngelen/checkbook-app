@@ -52,9 +52,11 @@ export default function DashboardPage() {
   // Derive access level for the selected book from already-loaded data.
   const isOwner = selectedBook ? isBookOwner(selectedBook, user?.uid ?? "") : false;
 
-  const now = new Date();
-  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  const [statsMonth, setStatsMonth] = useState(currentMonth);
+  // Lazy-initialize to avoid re-computing new Date() on every render.
+  const [statsMonth, setStatsMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  });
 
   const {
     categories,

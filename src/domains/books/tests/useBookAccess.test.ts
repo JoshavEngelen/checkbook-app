@@ -1,6 +1,5 @@
 import { renderHook } from "@testing-library/react";
 import { useBookAccess } from "../hooks/useBookAccess";
-import { useBook } from "../hooks/useBook";
 import { Timestamp } from "firebase/firestore";
 import type { Book } from "../types";
 

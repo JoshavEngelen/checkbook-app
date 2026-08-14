@@ -21,6 +21,7 @@ function monthLabel(yyyyMM: string): string {
 }
 
 export function DashboardCharts({ trendData, categoryData, statsMonth }: DashboardChartsProps) {
+  const label = monthLabel(statsMonth);
   return (
     <section aria-labelledby="charts-heading" className="mb-10">
       <h2 id="charts-heading" className="mb-5 text-lg font-semibold text-gray-900">
@@ -41,8 +42,8 @@ export function DashboardCharts({ trendData, categoryData, statsMonth }: Dashboa
           <h3 className="mb-1 text-sm font-semibold text-gray-700">
             Expenses by category
           </h3>
-          <p className="mb-3 text-xs text-gray-400">{monthLabel(statsMonth)}</p>
-          <CategoryExpenseChart data={categoryData} monthLabel={monthLabel(statsMonth)} />
+          <p className="mb-3 text-xs text-gray-400">{label}</p>
+          <CategoryExpenseChart data={categoryData} monthLabel={label} />
         </div>
       </div>
     </section>
