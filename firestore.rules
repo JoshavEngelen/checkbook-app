@@ -3,54 +3,120 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // -------------------------------------------------------------------------
+    // Helper functions
+    // -------------------------------------------------------------------------
+
     function isSignedIn() {
       return request.auth != null;
     }
 
+    // The caller owns the document if their UID matches the stored ownerId.
     function isOwner(ownerId) {
       return isSignedIn() && request.auth.uid == ownerId;
     }
 
+    // The caller is a listed participant (owner is NOT in this array by design).
     function isParticipant(participants) {
       return isSignedIn() && request.auth.uid in participants;
     }
 
+    // Full membership = owner OR participant.
     function isMember(ownerId, participants) {
       return isOwner(ownerId) || isParticipant(participants);
     }
 
+    // Reads the book document once and caches the result within the request.
     function bookData(bookId) {
       return get(/databases/$(database)/documents/books/$(bookId)).data;
     }
 
+    // True when the caller is a member of the given book.
+    // Used by categories and transactions to resolve their parent book.
     function isBookMember(bookId) {
       let book = bookData(bookId);
       return isMember(book.ownerId, book.participants);
     }
 
-    match /books/{bookId} {
-      allow read: if isMember(resource.data.ownerId, resource.data.participants);
-      allow delete: if isOwner(resource.data.ownerId);
-      allow create: if isOwner(request.resource.data.ownerId);
-      allow update: if isOwner(resource.data.ownerId)
-        && request.resource.data.ownerId == resource.data.ownerId;
+    // True when the caller is the owner of the given book.
+    function isBookOwner(bookId) {
+      return isOwner(bookData(bookId).ownerId);
     }
+
+    // -------------------------------------------------------------------------
+    // /books/{bookId}
+    // -------------------------------------------------------------------------
+
+    match /books/{bookId} {
+      // Any authenticated member (owner or participant) may read the book.
+      allow read: if isMember(resource.data.ownerId, resource.data.participants);
+
+      // A user may only create a book where they are listed as the owner.
+      // Invariants enforced at write time:
+      //   • participants must be a list (prevents wrong-typed field)
+      //   • the owner's own UID must not appear in participants
+      //     (owner and participant roles are mutually exclusive)
+      allow create: if isOwner(request.resource.data.ownerId)
+        && request.resource.data.participants is list
+        && !(request.auth.uid in request.resource.data.participants);
+
+      // Only the current owner may update the book (rename, archive, manage
+      // participants). The ownerId field is permanently immutable so ownership
+      // can never be transferred. The owner-not-in-participants invariant is
+      // re-checked so it cannot drift via an update.
+      allow update: if isOwner(resource.data.ownerId)
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.participants is list
+        && !(request.auth.uid in request.resource.data.participants);
+
+      // Only the owner may delete a book.
+      allow delete: if isOwner(resource.data.ownerId);
+    }
+
+    // -------------------------------------------------------------------------
+    // /categories/{categoryId}
+    // -------------------------------------------------------------------------
 
     match /categories/{categoryId} {
+      // Any book member may read categories that belong to their book.
       allow read: if isBookMember(resource.data.bookId);
-      allow delete: if isOwner(bookData(resource.data.bookId).ownerId);
+
+      // Any book member may create a category inside their book.
+      // The bookId in the new document must point to a book the caller belongs to.
       allow create: if isBookMember(request.resource.data.bookId);
+
+      // Any book member may update a category.
+      // bookId is immutable — a category cannot be re-assigned to a different book.
       allow update: if isBookMember(resource.data.bookId)
         && request.resource.data.bookId == resource.data.bookId;
+
+      // Any book member may delete a category (normal bookkeeping access).
+      allow delete: if isBookMember(resource.data.bookId);
     }
 
+    // -------------------------------------------------------------------------
+    // /transactions/{transactionId}
+    // -------------------------------------------------------------------------
+
     match /transactions/{transactionId} {
+      // Any book member may read transactions that belong to their book.
       allow read: if isBookMember(resource.data.bookId);
-      allow delete: if isOwner(bookData(resource.data.bookId).ownerId);
+
+      // Any book member may create a transaction inside their book.
       allow create: if isBookMember(request.resource.data.bookId);
+
+      // Any book member may update a transaction.
+      // bookId is immutable — a transaction cannot be re-assigned to a different book.
       allow update: if isBookMember(resource.data.bookId)
         && request.resource.data.bookId == resource.data.bookId;
+
+      // Any book member may delete a transaction (normal bookkeeping access).
+      allow delete: if isBookMember(resource.data.bookId);
     }
+
+    // -------------------------------------------------------------------------
+    // Catch-all — deny every other path
+    // -------------------------------------------------------------------------
 
     match /{document=**} {
       allow read, write: if false;

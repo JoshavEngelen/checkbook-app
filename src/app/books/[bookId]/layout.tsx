@@ -24,7 +24,9 @@ export default async function BookLayout({
         <BookNav bookId={bookId} />
       </aside>
 
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6">
+          <BookAccessGuard bookId={bookId}>{children}</BookAccessGuard>
+        </main>
     </div>
   );
 }

@@ -17,7 +17,8 @@ export function useBook(id: string) {
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // True when the book doesn't exist or the current user isn't its owner.
+  // True when the book doesn't exist or the current user has no membership
+  // (neither owner nor participant). Used by BookAccessGuard to redirect.
   const [forbidden, setForbidden] = useState(false);
   const [loadedId, setLoadedId] = useState(id);
 
