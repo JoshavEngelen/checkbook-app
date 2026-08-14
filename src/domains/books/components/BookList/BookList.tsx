@@ -6,12 +6,13 @@ import type { Book } from "../../types";
 
 interface BookListProps {
   books: Book[];
+  currentUserId: string;
   onEdit: (book: Book) => void;
   onArchive: (book: Book) => void;
   onRestore: (book: Book) => void;
 }
 
-export function BookList({ books, onEdit, onArchive, onRestore }: BookListProps) {
+export function BookList({ books, currentUserId, onEdit, onArchive, onRestore }: BookListProps) {
   if (books.length === 0) {
     return (
       <EmptyState
@@ -27,6 +28,7 @@ export function BookList({ books, onEdit, onArchive, onRestore }: BookListProps)
         <li key={book.id}>
           <BookCard
             book={book}
+            currentUserId={currentUserId}
             onEdit={onEdit}
             onArchive={onArchive}
             onRestore={onRestore}

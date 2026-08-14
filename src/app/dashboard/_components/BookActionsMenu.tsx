@@ -7,6 +7,8 @@ import { Dropdown, type DropdownItem } from "@/shared/components";
 interface BookActionsMenuProps {
   /** The currently selected book. When null the menu trigger is disabled. */
   book: Book | null;
+  /** When false the menu is not rendered — used for participant users. */
+  isOwner: boolean;
   onEdit: (book: Book) => void;
   onArchive: (book: Book) => void;
 }
@@ -45,7 +47,8 @@ const ARCHIVE_ICON = (
   </svg>
 );
 
-export function BookActionsMenu({ book, onEdit, onArchive }: BookActionsMenuProps) {
+export function BookActionsMenu({ book, isOwner, onEdit, onArchive }: BookActionsMenuProps) {
+  if (!isOwner) return null;
   const items: DropdownItem[] = [
     {
       id: "edit",

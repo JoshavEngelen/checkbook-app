@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useBooks, BookList } from "@/domains/books";
+import { useAuth } from "@/auth/hooks/useAuth";
 import { EmptyState, Spinner } from "@/shared/components";
 
 export default function ArchivedBooksPage() {
   const { books, loading, restoreBook } = useBooks();
+  const { user } = useAuth();
 
   const archivedBooks = books.filter((b) => b.archived);
 
@@ -40,6 +42,7 @@ export default function ArchivedBooksPage() {
       ) : (
         <BookList
           books={archivedBooks}
+          currentUserId={user?.uid ?? ""}
           onEdit={() => {}}
           onArchive={() => {}}
           onRestore={(book) => restoreBook(book.id)}

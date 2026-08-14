@@ -6,6 +6,7 @@ import { DndContext, DragOverlay, PointerSensor, KeyboardSensor, useSensor, useS
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { useAuth } from "@/auth/hooks/useAuth";
 import { useBooks } from "@/domains/books";
+import { isBookOwner } from "@/domains/books/operations/getBookAccess";
 import { Spinner, Modal, EmptyState, Button } from "@/shared/components";
 import { BookForm, ArchiveDialog } from "@/domains/books";
 import type { Book } from "@/domains/books";
@@ -47,6 +48,9 @@ export default function DashboardPage() {
 
   const { selectedBook, setSelectedBook, activeBooks, initialized } =
     useSelectedBook(books, booksLoading);
+
+  // Derive access level for the selected book from already-loaded data.
+  const isOwner = selectedBook ? isBookOwner(selectedBook, user?.uid ?? "") : false;
 
   const now = new Date();
   const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -193,6 +197,8 @@ export default function DashboardPage() {
           <BookSelector
             activeBooks={activeBooks}
             selectedBook={selectedBook}
+            isOwner={isOwner}
+            currentUserId={user?.uid ?? ""}
             onSelect={setSelectedBook}
             onCreateBook={() => setIsCreatingBook(true)}
             onEditBook={setEditingBook}
@@ -220,7 +226,7 @@ export default function DashboardPage() {
           <>
             {/* Book-specific management links */}
             <div className="mb-8">
-              <BookActions selectedBookId={selectedBook?.id ?? null} />
+              <BookActions selectedBookId={selectedBook?.id ?? null} isOwner={isOwner} />
             </div>
 
             {/* Quick actions */}

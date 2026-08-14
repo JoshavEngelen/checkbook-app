@@ -9,6 +9,9 @@ import { BookActionsMenu } from "./BookActionsMenu";
 interface BookSelectorProps {
   activeBooks: Book[];
   selectedBook: Book | null;
+  /** Whether the current user owns the selected book. */
+  isOwner: boolean;
+  currentUserId: string;
   onSelect: (bookId: string) => void;
   onCreateBook: () => void;
   onEditBook: (book: Book) => void;
@@ -21,6 +24,8 @@ interface BookSelectorProps {
 export function BookSelector({
   activeBooks,
   selectedBook,
+  isOwner,
+  currentUserId,
   onSelect,
   onCreateBook,
   onEditBook,
@@ -56,10 +61,12 @@ export function BookSelector({
       <BookSelectorDropdown
         activeBooks={activeBooks}
         selectedBook={selectedBook}
+        currentUserId={currentUserId}
         onSelect={onSelect}
       />
       <BookActionsMenu
         book={selectedBook}
+        isOwner={isOwner}
         onEdit={onEditBook}
         onArchive={onArchiveBook}
       />

@@ -5,9 +5,10 @@ import { Button } from "@/shared/components";
 
 interface BookActionsProps {
   selectedBookId: string | null;
+  isOwner: boolean;
 }
 
-export function BookActions({ selectedBookId }: BookActionsProps) {
+export function BookActions({ selectedBookId, isOwner }: BookActionsProps) {
   if (!selectedBookId) return null;
 
   return (
@@ -22,6 +23,13 @@ export function BookActions({ selectedBookId }: BookActionsProps) {
           Manage categories
         </Button>
       </Link>
+      {isOwner && (
+        <Link href={`/books/${selectedBookId}/participants`}>
+          <Button variant="ghost" size="sm">
+            Manage participants
+          </Button>
+        </Link>
+      )}
     </div>
   );
 }

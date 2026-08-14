@@ -7,12 +7,14 @@ import { Dropdown, type DropdownItem } from "@/shared/components";
 interface BookSelectorDropdownProps {
   activeBooks: Book[];
   selectedBook: Book | null;
+  currentUserId: string;
   onSelect: (bookId: string) => void;
 }
 
 export function BookSelectorDropdown({
   activeBooks,
   selectedBook,
+  currentUserId,
   onSelect,
 }: BookSelectorDropdownProps) {
   const items: DropdownItem[] = activeBooks.map((book) => ({
@@ -31,6 +33,7 @@ export function BookSelectorDropdown({
       items={items}
       renderItem={(item, onSelect) => {
         const book = activeBooks.find((b) => b.id === item.id)!;
+        const isOwner = book.ownerId === currentUserId;
         return (
           <button
             type="button"
@@ -41,7 +44,19 @@ export function BookSelectorDropdown({
               item.className
             )}
           >
-            <span className="leading-tight">{item.label}</span>
+            <span className="flex items-center gap-2 leading-tight">
+              <span>{item.label}</span>
+              <span
+                className={clsx(
+                  "inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium",
+                  isOwner
+                    ? "bg-blue-100 text-blue-700"
+                    : "bg-gray-100 text-gray-500"
+                )}
+              >
+                {isOwner ? "Owner" : "Participant"}
+              </span>
+            </span>
             {book.description && (
               <span className="mt-0.5 text-xs text-gray-400 leading-tight">
                 {book.description}

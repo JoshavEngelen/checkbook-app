@@ -23,34 +23,64 @@ const mockBook: Book = {
 describe("BookCard", () => {
   it("renders the book name and participant count", () => {
     render(
-      <BookCard book={mockBook} onEdit={jest.fn()} onArchive={jest.fn()} onRestore={jest.fn()} />
+      <BookCard book={mockBook} currentUserId="user-1" onEdit={jest.fn()} onArchive={jest.fn()} onRestore={jest.fn()} />
     );
     expect(screen.getByText("My Book")).toBeInTheDocument();
     expect(screen.getByText("2 participants")).toBeInTheDocument();
   });
 
-  it("calls onArchive when Archive is clicked", () => {
+  it("shows Owner badge for the book owner", () => {
+    render(
+      <BookCard book={mockBook} currentUserId="user-1" onEdit={jest.fn()} onArchive={jest.fn()} onRestore={jest.fn()} />
+    );
+    expect(screen.getByText("Owner")).toBeInTheDocument();
+  });
+
+  it("shows Participant badge for a non-owner", () => {
+    render(
+      <BookCard book={mockBook} currentUserId="other-user" onEdit={jest.fn()} onArchive={jest.fn()} onRestore={jest.fn()} />
+    );
+    expect(screen.getByText("Participant")).toBeInTheDocument();
+  });
+
+  it("calls onArchive when Archive is clicked (owner only)", () => {
     const onArchive = jest.fn();
     render(
-      <BookCard book={mockBook} onEdit={jest.fn()} onArchive={onArchive} onRestore={jest.fn()} />
+      <BookCard book={mockBook} currentUserId="user-1" onEdit={jest.fn()} onArchive={onArchive} onRestore={jest.fn()} />
     );
     fireEvent.click(screen.getByText("Archive"));
     expect(onArchive).toHaveBeenCalledWith(mockBook);
   });
 
-  it("shows Restore button when book is archived", () => {
+  it("does not show owner-only buttons for participants", () => {
+    render(
+      <BookCard book={mockBook} currentUserId="other-user" onEdit={jest.fn()} onArchive={jest.fn()} onRestore={jest.fn()} />
+    );
+    expect(screen.queryByText("Archive")).not.toBeInTheDocument();
+    expect(screen.queryByText("Edit")).not.toBeInTheDocument();
+  });
+
+  it("shows Restore button when book is archived (owner only)", () => {
     const archived = { ...mockBook, archived: true };
     render(
-      <BookCard book={archived} onEdit={jest.fn()} onArchive={jest.fn()} onRestore={jest.fn()} />
+      <BookCard book={archived} currentUserId="user-1" onEdit={jest.fn()} onArchive={jest.fn()} onRestore={jest.fn()} />
     );
     expect(screen.getByText("Restore")).toBeInTheDocument();
+  });
+
+  it("does not show Restore to a participant of an archived book", () => {
+    const archived = { ...mockBook, archived: true };
+    render(
+      <BookCard book={archived} currentUserId="other-user" onEdit={jest.fn()} onArchive={jest.fn()} onRestore={jest.fn()} />
+    );
+    expect(screen.queryByText("Restore")).not.toBeInTheDocument();
   });
 });
 
 describe("BookList", () => {
   it("renders empty state when there are no books", () => {
     render(
-      <BookList books={[]} onEdit={jest.fn()} onArchive={jest.fn()} onRestore={jest.fn()} />
+      <BookList books={[]} currentUserId="user-1" onEdit={jest.fn()} onArchive={jest.fn()} onRestore={jest.fn()} />
     );
     expect(screen.getByText("No books yet")).toBeInTheDocument();
   });
@@ -58,7 +88,7 @@ describe("BookList", () => {
   it("renders a card for each book", () => {
     const books = [mockBook, { ...mockBook, id: "book-2", name: "Second Book" }];
     render(
-      <BookList books={books} onEdit={jest.fn()} onArchive={jest.fn()} onRestore={jest.fn()} />
+      <BookList books={books} currentUserId="user-1" onEdit={jest.fn()} onArchive={jest.fn()} onRestore={jest.fn()} />
     );
     expect(screen.getByText("My Book")).toBeInTheDocument();
     expect(screen.getByText("Second Book")).toBeInTheDocument();

@@ -3,18 +3,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-
-const navItems = (bookId: string) => [
-  { label: "Transactions", href: `/books/${bookId}/transactions` },
-  { label: "Categories", href: `/books/${bookId}/categories` },
-];
+import { useBookAccess } from "@/domains/books/hooks/useBookAccess";
 
 export function BookNav({ bookId }: { bookId: string }) {
   const pathname = usePathname();
+  const { isOwner } = useBookAccess(bookId);
+
+  const navItems = [
+    { label: "Transactions", href: `/books/${bookId}/transactions` },
+    { label: "Categories", href: `/books/${bookId}/categories` },
+    // Participants page is owner-only; absent for participants.
+    ...(isOwner ? [{ label: "Participants", href: `/books/${bookId}/participants` }] : []),
+  ];
 
   return (
     <nav className="flex flex-col gap-1">
-      {navItems(bookId).map(({ label, href }) => (
+      {navItems.map(({ label, href }) => (
         <Link
           key={href}
           href={href}

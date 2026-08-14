@@ -6,12 +6,15 @@ import type { Book } from "../../types";
 
 interface BookCardProps {
   book: Book;
+  currentUserId: string;
   onEdit: (book: Book) => void;
   onArchive: (book: Book) => void;
   onRestore: (book: Book) => void;
 }
 
-export function BookCard({ book, onEdit, onArchive, onRestore }: BookCardProps) {
+export function BookCard({ book, currentUserId, onEdit, onArchive, onRestore }: BookCardProps) {
+  const isOwner = book.ownerId === currentUserId;
+
   return (
     <Card className="flex flex-col gap-3">
       <div className="flex items-start justify-between gap-2">
@@ -23,11 +26,23 @@ export function BookCard({ book, onEdit, onArchive, onRestore }: BookCardProps) 
             <p className="text-sm text-gray-500">{book.description}</p>
           )}
         </Link>
-        {book.archived && (
-          <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
-            Archived
+        <div className="flex shrink-0 items-center gap-1.5">
+          {/* Role badge — distinguishes owner from participant at a glance */}
+          <span
+            className={
+              isOwner
+                ? "rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700"
+                : "rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500"
+            }
+          >
+            {isOwner ? "Owner" : "Participant"}
           </span>
-        )}
+          {book.archived && (
+            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+              Archived
+            </span>
+          )}
+        </div>
       </div>
 
       <p className="text-xs text-gray-400">
@@ -35,20 +50,23 @@ export function BookCard({ book, onEdit, onArchive, onRestore }: BookCardProps) 
         {book.participants.length !== 1 ? "s" : ""}
       </p>
 
-      <div className="flex gap-2">
-        <Button size="sm" variant="secondary" onClick={() => onEdit(book)}>
-          Edit
-        </Button>
-        {book.archived ? (
-          <Button size="sm" variant="ghost" onClick={() => onRestore(book)}>
-            Restore
+      {/* Owner-only actions */}
+      {isOwner && (
+        <div className="flex gap-2">
+          <Button size="sm" variant="secondary" onClick={() => onEdit(book)}>
+            Edit
           </Button>
-        ) : (
-          <Button size="sm" variant="ghost" onClick={() => onArchive(book)}>
-            Archive
-          </Button>
-        )}
-      </div>
+          {book.archived ? (
+            <Button size="sm" variant="ghost" onClick={() => onRestore(book)}>
+              Restore
+            </Button>
+          ) : (
+            <Button size="sm" variant="ghost" onClick={() => onArchive(book)}>
+              Archive
+            </Button>
+          )}
+        </div>
+      )}
     </Card>
   );
 }

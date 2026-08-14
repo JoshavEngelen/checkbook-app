@@ -7,9 +7,12 @@ import { Button, Modal, Spinner } from "@/shared/components";
 import type { CreateBookValues } from "@/domains/books/validation";
 import { AccessDeniedNotice } from "./_components/AccessDeniedNotice";
 
+import { useAuth } from "@/auth/hooks/useAuth";
+
 export default function BooksPage() {
   const { books, loading, createBook, updateBook, archiveBook, restoreBook } =
     useBooks();
+  const { user } = useAuth();
 
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -51,7 +54,8 @@ export default function BooksPage() {
       </div>
 
       <BookList
-        books={books}
+        books={books.filter((b) => !b.archived)}
+        currentUserId={user?.uid ?? ""}
         onEdit={setEditingBook}
         onArchive={setArchivingBook}
         onRestore={(book) => restoreBook(book.id)}
